@@ -1,8 +1,8 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
-  // swcMinify is now default and always true — no need to set it
-  // Add PWA support later with next-pwa if needed
-};
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
+});
 
-export default nextConfig;
+module.exports = withPWA({
+  reactStrictMode: true,
+});
