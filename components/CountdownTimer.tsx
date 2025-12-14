@@ -1,4 +1,12 @@
+import { useEffect, useState } from 'react';
+
 export default function CountdownTimer() {
-  // Add logic for timer
-  return <div className="bg-orange text-white p-2 text-center">Special rate ends in 14:23:11</div>;
+  const [timeLeft, setTimeLeft] = useState('14:23:11');
+
+  // Simple mock countdown
+  return (
+    <div className="bg-orange text-white text-center py-2 font-semibold">
+      Special rate ends in {timeLeft}
+    </div>
+  );
 }
