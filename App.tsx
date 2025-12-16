@@ -1,4 +1,8 @@
+"use client";
+
 import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Home, Search, Map, Heart, User, Moon, Sun } from "lucide-react";
 import { HomePage } from "./components/HomePage";
 import { SearchResults } from "./components/SearchResults";
@@ -8,28 +12,74 @@ import { BookingsPage } from "./components/BookingsPage";
 
 type Page = "home" | "search" | "villa" | "destinations" | "bookings";
 
-export default function App() {
-  const [currentPage, setCurrentPage] = useState<Page>("home");
-  const [selectedVilla, setSelectedVilla] = useState<number | null>(null);
+type AppProps = {
+  initialPage?: Page;
+  initialVillaId?: number | null;
+  initialSearchParams?: {
+    location?: string;
+    guests?: number;
+    checkIn?: string;
+    checkOut?: string;
+  };
+};
+
+export default function App({
+  initialPage = "home",
+  initialVillaId = null,
+  initialSearchParams,
+}: AppProps) {
+  const router = useRouter();
+  const [currentPage, setCurrentPage] = useState<Page>(initialPage);
+  const [selectedVilla, setSelectedVilla] = useState<number | null>(initialVillaId);
   const [darkMode, setDarkMode] = useState(false);
   const [wishlistCount] = useState(3); // Mock wishlist count
   const [searchParams, setSearchParams] = useState({
-    location: "",
-    guests: 2,
-    checkIn: "",
-    checkOut: "",
+    location: initialSearchParams?.location ?? "",
+    guests: initialSearchParams?.guests ?? 2,
+    checkIn: initialSearchParams?.checkIn ?? "",
+    checkOut: initialSearchParams?.checkOut ?? "",
   });
 
+  const buildSearchUrl = (params: typeof searchParams) => {
+    const query = new URLSearchParams();
+    if (params.location) query.set("location", params.location);
+    if (params.guests) query.set("guests", String(params.guests));
+    if (params.checkIn) query.set("checkIn", params.checkIn);
+    if (params.checkOut) query.set("checkOut", params.checkOut);
+    return query.toString() ? `/search?${query.toString()}` : "/search";
+  };
+
+  const pathForPage = (page: Page, villaId?: number | null) => {
+    switch (page) {
+      case "home":
+        return "/";
+      case "search":
+        return buildSearchUrl(searchParams);
+      case "destinations":
+        return "/destinations";
+      case "villa": {
+        const idToUse = villaId ?? selectedVilla ?? 1;
+        return `/accommodation/${idToUse}`;
+      }
+      case "bookings":
+        return "/bookings";
+    }
+  };
+
   const navigateTo = (page: Page, villaId?: number) => {
-    setCurrentPage(page);
     if (villaId !== undefined) {
       setSelectedVilla(villaId);
     }
+
+    setCurrentPage(page);
+
+    router.push(pathForPage(page, villaId));
   };
 
   const handleSearch = (params: typeof searchParams) => {
     setSearchParams(params);
     setCurrentPage("search");
+    router.push(buildSearchUrl(params));
   };
 
   return (
@@ -60,8 +110,9 @@ export default function App() {
       {/* Mobile Bottom Tab Navigation - NEW DESIGN */}
       <nav className={`fixed bottom-0 left-0 right-0 ${darkMode ? 'bg-[#16283a] border-[#2a3f54]' : 'bg-white border-gray-200'} border-t md:hidden z-50 safe-area-bottom`}>
         <div className="flex justify-around items-center h-16 px-2">
-          <button
-            onClick={() => navigateTo("home")}
+          <Link
+            href={pathForPage("home")}
+            onClick={() => setCurrentPage("home")}
             className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-all ${
               currentPage === "home" 
                 ? "text-[#ff6b35]" 
@@ -72,10 +123,11 @@ export default function App() {
               className={`w-6 h-6 ${currentPage === "home" ? "fill-current" : ""}`} 
             />
             <span className="text-xs font-medium">Home</span>
-          </button>
+          </Link>
           
-          <button
-            onClick={() => navigateTo("search")}
+          <Link
+            href={pathForPage("search")}
+            onClick={() => setCurrentPage("search")}
             className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-all ${
               currentPage === "search" 
                 ? "text-[#ff6b35]" 
@@ -86,10 +138,11 @@ export default function App() {
               className={`w-6 h-6 ${currentPage === "search" ? "fill-current" : ""}`} 
             />
             <span className="text-xs font-medium">Search</span>
-          </button>
+          </Link>
           
-          <button
-            onClick={() => navigateTo("destinations")}
+          <Link
+            href={pathForPage("destinations")}
+            onClick={() => setCurrentPage("destinations")}
             className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-all ${
               currentPage === "destinations" 
                 ? "text-[#ff6b35]" 
@@ -100,9 +153,10 @@ export default function App() {
               className={`w-6 h-6 ${currentPage === "destinations" ? "fill-current" : ""}`} 
             />
             <span className="text-xs font-medium">Map</span>
-          </button>
+          </Link>
           
-          <button
+          <Link
+            href="#wishlist"
             className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-all relative ${
               darkMode ? "text-gray-400" : "text-gray-500"
             }`}
@@ -116,10 +170,11 @@ export default function App() {
               )}
             </div>
             <span className="text-xs font-medium">Wishlist</span>
-          </button>
+          </Link>
           
-          <button
-            onClick={() => navigateTo("bookings")}
+          <Link
+            href={pathForPage("bookings")}
+            onClick={() => setCurrentPage("bookings")}
             className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-all ${
               currentPage === "bookings" 
                 ? "text-[#ff6b35]" 
@@ -130,7 +185,7 @@ export default function App() {
               className={`w-6 h-6 ${currentPage === "bookings" ? "fill-current" : ""}`} 
             />
             <span className="text-xs font-medium">Profile</span>
-          </button>
+          </Link>
         </div>
       </nav>
 
@@ -139,8 +194,9 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* NEW Logo */}
-            <button
-              onClick={() => navigateTo("home")}
+            <Link
+              href={pathForPage("home")}
+              onClick={() => setCurrentPage("home")}
               className="flex items-center gap-3"
             >
               <div className="relative w-12 h-12">
@@ -163,43 +219,47 @@ export default function App() {
               <span className={`text-xl font-medium ${darkMode ? 'text-[#e8ecef]' : 'text-gray-900'}`}>
                 TrustedVillas
               </span>
-            </button>
+            </Link>
 
             <div className="flex items-center gap-8">
-              <button
-                onClick={() => navigateTo("home")}
+              <Link
+                href={pathForPage("home")}
+                onClick={() => setCurrentPage("home")}
                 className={currentPage === "home" ? "text-[#ff6b35]" : darkMode ? "text-gray-300" : "text-gray-700"}
               >
                 Home
-              </button>
-              <button
-                onClick={() => navigateTo("search")}
+              </Link>
+              <Link
+                href={pathForPage("search")}
+                onClick={() => setCurrentPage("search")}
                 className={currentPage === "search" ? "text-[#ff6b35]" : darkMode ? "text-gray-300" : "text-gray-700"}
               >
                 Search Villas
-              </button>
-              <button
-                onClick={() => navigateTo("destinations")}
+              </Link>
+              <Link
+                href={pathForPage("destinations")}
+                onClick={() => setCurrentPage("destinations")}
                 className={currentPage === "destinations" ? "text-[#ff6b35]" : darkMode ? "text-gray-300" : "text-gray-700"}
               >
                 Destinations
-              </button>
-              <button
-                onClick={() => navigateTo("bookings")}
+              </Link>
+              <Link
+                href={pathForPage("bookings")}
+                onClick={() => setCurrentPage("bookings")}
                 className={currentPage === "bookings" ? "text-[#ff6b35]" : darkMode ? "text-gray-300" : "text-gray-700"}
               >
                 My Bookings
-              </button>
+              </Link>
               
               {/* Wishlist with counter */}
-              <button className={`relative ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+              <Link href="#wishlist" className={`relative ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
                 <Heart className="w-5 h-5" />
                 {wishlistCount > 0 && (
                   <span className="absolute -top-2 -right-2 w-5 h-5 bg-[#ff6b35] text-white text-xs rounded-full flex items-center justify-center">
                     {wishlistCount}
                   </span>
                 )}
-              </button>
+              </Link>
               
               {/* Dark Mode Toggle */}
               <button 
