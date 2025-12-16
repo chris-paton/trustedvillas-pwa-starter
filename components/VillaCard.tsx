@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Star, Users, Bed, Bath, MapPin, Heart, TrendingUp } from "lucide-react";
-import { Badge } from "./ui/badge";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { Badge } from "@/components/ui/badge";
+import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { useState } from "react";
 
 interface Villa {
