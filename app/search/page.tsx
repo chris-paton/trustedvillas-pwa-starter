@@ -1,22 +1,26 @@
-"use client";
-
 import App from "@/App";
 
 type SearchPageProps = {
-  searchParams?: any;
+  searchParams?: Promise<{
+    location?: string;
+    guests?: string;
+    checkIn?: string;
+    checkOut?: string;
+  }>;
 };
 
-export default function Search({ searchParams }: SearchPageProps) {
-  const guests = searchParams?.guests ? Number(searchParams.guests) : undefined;
+export default async function Search({ searchParams }: SearchPageProps) {
+  const resolvedParams = searchParams ? await searchParams : undefined;
+  const guests = resolvedParams?.guests ? Number(resolvedParams.guests) : undefined;
 
   return (
     <App
       initialPage="search"
       initialSearchParams={{
-        location: searchParams?.location,
+        location: resolvedParams?.location,
         guests: Number.isFinite(guests) ? guests : undefined,
-        checkIn: searchParams?.checkIn,
-        checkOut: searchParams?.checkOut,
+        checkIn: resolvedParams?.checkIn,
+        checkOut: resolvedParams?.checkOut,
       }}
     />
   );

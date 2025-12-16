@@ -1,13 +1,12 @@
-"use client";
-
 import App from "@/App";
 
 type AccommodationPageProps = {
-  params?: any;
+  params: Promise<{ id: string }>;
 };
 
-export default function AccommodationPage({ params }: AccommodationPageProps) {
-  const parsedId = params?.id ? Number(params.id) : NaN;
+export default async function AccommodationPage({ params }: AccommodationPageProps) {
+  const resolvedParams = await params;
+  const parsedId = Number(resolvedParams.id);
   const villaId = Number.isFinite(parsedId) ? parsedId : null;
 
   return <App initialPage="villa" initialVillaId={villaId} />;
