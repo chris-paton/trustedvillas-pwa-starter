@@ -1,90 +1,169 @@
-import { Heart, MapPin, Star, Sparkles } from 'lucide-react';
+import { motion } from "framer-motion";
+import { Star, Users, Bed, Bath, MapPin, Heart, TrendingUp } from "lucide-react";
+import { Badge } from "./ui/badge";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { useState } from "react";
 
-interface VillaCardProps {
+interface Villa {
+  id: number;
   name: string;
   location: string;
-  pricePerNight: number;
   image: string;
-  tag?: string;
-  rating?: number;
-  meta?: string;
-  perks?: string[];
+  sleeps: number;
+  bedrooms: number;
+  bathrooms: number;
+  price: number;
+  originalPrice: number;
+  rating: number;
+  reviews: number;
+  features: string[];
+  leftInStock: number;
+  discount: number;
 }
 
-export default function VillaCard({
-  name,
-  location,
-  pricePerNight,
-  image,
-  tag = 'Private concierge',
-  rating = 4.9,
-  meta = '',
-  perks = [],
-}: VillaCardProps) {
+interface VillaCardProps {
+  villa: Villa;
+  onViewDetails: () => void;
+}
+
+// Urgency badge variants
+const urgencyVariants = [
+  "Booked 7× this week",
+  "Only 2 dates left", 
+  "Last booked 3 hrs ago",
+  "Price rises in 24h",
+  "Trending now",
+  "Booked 12× this month"
+];
+
+export function VillaCard({ villa, onViewDetails }: VillaCardProps) {
+  const [isSaved, setIsSaved] = useState(false);
+  
+  // Select urgency message based on villa id for consistency
+  const urgencyMessage = urgencyVariants[villa.id % urgencyVariants.length];
+
   return (
-    <article className="group overflow-hidden rounded-2xl bg-white/95 text-navy shadow-lg ring-1 ring-white/40 backdrop-blur transition hover:-translate-y-1 hover:shadow-xl dark:bg-navy-dark dark:text-cream">
-      <div className="relative h-56 overflow-hidden">
-        <img
-          src={image}
-          alt={name}
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+    <motion.div
+      whileHover={{ y: -4 }}
+      className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow cursor-pointer group"
+      onClick={onViewDetails}
+    >
+      <div className="relative">
+        <ImageWithFallback
+          src={villa.image}
+          alt={villa.name}
+          className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
-        <div className="absolute top-3 left-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-navy shadow-sm">
-          {tag}
-        </div>
+        
+        {/* Wishlist Heart - Now functional */}
         <button
-          aria-label="Save villa"
-          className="absolute top-3 right-3 rounded-full bg-white/90 p-2 text-navy shadow-sm transition hover:scale-110"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsSaved(!isSaved);
+          }}
+          className="absolute top-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all hover:scale-110"
         >
-          <Heart className="h-5 w-5" />
+          <Heart 
+            className={`w-5 h-5 transition-all ${
+              isSaved 
+                ? "fill-orange-500 text-orange-500" 
+                : "text-gray-700"
+            }`} 
+          />
         </button>
-        <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full bg-black/45 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
-          <Star className="h-4 w-4 text-gold" />
-          <span>{rating} guest rating</span>
+
+        {/* Discount Badge */}
+        {villa.discount > 0 && (
+          <div className="absolute top-3 left-3">
+            <Badge className="bg-red-500 text-white border-0">
+              {villa.discount}% OFF
+            </Badge>
+          </div>
+        )}
+
+        {/* NEW: Dynamic Urgency Badge */}
+        <div className="absolute bottom-3 left-3">
+          <Badge className="bg-[#ff6b35] text-white border-0 flex items-center gap-1.5 shadow-lg">
+            <TrendingUp className="w-3 h-3" />
+            {urgencyMessage}
+          </Badge>
+        </div>
+
+        {/* Rating */}
+        <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1">
+          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+          <span className="text-sm">
+            {villa.rating}
+          </span>
+          <span className="text-xs text-gray-500">({villa.reviews})</span>
         </div>
       </div>
 
-      <div className="space-y-3 p-4">
-        <div className="space-y-1">
-          <h3 className="font-heading text-lg leading-tight">{name}</h3>
-          <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-            <MapPin className="h-4 w-4 text-teal" />
-            <span>{location}</span>
+      <div className="p-4">
+        <h3 className="text-lg mb-1 truncate">{villa.name}</h3>
+        <div className="flex items-center gap-1 text-gray-500 text-sm mb-3">
+          <MapPin className="w-4 h-4 flex-shrink-0" />
+          <span className="truncate">{villa.location}</span>
+        </div>
+
+        <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+          <div className="flex items-center gap-1">
+            <Users className="w-4 h-4" />
+            <span>{villa.sleeps}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Bed className="w-4 h-4" />
+            <span>{villa.bedrooms}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Bath className="w-4 h-4" />
+            <span>{villa.bathrooms}</span>
           </div>
         </div>
 
-        {meta && (
-          <div className="flex items-center gap-2 rounded-full bg-cream px-3 py-1 text-xs font-semibold text-navy dark:bg-navy dark:text-cream">
-            <Sparkles className="h-4 w-4 text-orange" />
-            <span>{meta}</span>
-          </div>
-        )}
+        {/* Features */}
+        <div className="flex flex-wrap gap-1 mb-3">
+          {villa.features.slice(0, 3).map((feature) => (
+            <span
+              key={feature}
+              className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
+            >
+              {feature}
+            </span>
+          ))}
+          {villa.features.length > 3 && (
+            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+              +{villa.features.length - 3} more
+            </span>
+          )}
+        </div>
 
-        {perks.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {perks.map((perk) => (
-              <span
-                key={perk}
-                className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 dark:bg-white/5 dark:text-cream"
-              >
-                {perk}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <div className="flex items-baseline justify-between">
+        <div className="flex items-end justify-between pt-3 border-t border-gray-100">
           <div>
-            <span className="text-sm text-slate-500 dark:text-slate-300">from</span>{' '}
-            <span className="font-heading text-xl">€{pricePerNight}</span>
-            <span className="text-sm text-slate-500 dark:text-slate-300"> /night</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl text-orange-500">£{villa.price}</span>
+              {villa.originalPrice > villa.price && (
+                <span className="text-sm text-gray-500 line-through">£{villa.originalPrice}</span>
+              )}
+            </div>
+            <span className="text-xs text-gray-500">per night</span>
           </div>
-          <button className="rounded-lg bg-navy px-3 py-2 text-sm font-semibold text-cream shadow-sm transition hover:bg-teal dark:bg-teal dark:hover:bg-orange">
-            View villa
+          <button
+            className="bg-orange-500 text-white px-4 py-2 rounded-xl hover:bg-orange-600 transition-all text-sm hover:shadow-lg hover:shadow-orange-500/30"
+            style={{
+              backgroundImage: "linear-gradient(90deg, #ff6b35 0%, #ff6b35 50%, #ff5a2d 100%)",
+              backgroundColor: "#ff6b35",
+              color: "#fff",
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewDetails();
+            }}
+          >
+            View & Book
           </button>
         </div>
       </div>
-    </article>
+    </motion.div>
   );
 }

@@ -1,6 +1,3 @@
-// Similar structure with infinite scroll grid, filters, etc.
-import VillaCard from '../../components/VillaCard';
-
 export default function Search() {
   // Fetch or dummy results
   return (
