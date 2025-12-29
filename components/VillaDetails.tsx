@@ -109,10 +109,6 @@ const API_BASE = (process.env.NEXT_PUBLIC_ACCOMMODATION_API_BASE ?? "https://loc
   ""
 );
 
-const villaCodeLookup: Record<number | string, string> = {
-  1: "FI1250.1304.1",
-};
-
 const fallbackVilla: VillaDetailsData = {
   id: 1,
   code: "FI1250.1304.1",
@@ -318,13 +314,17 @@ const normalizeVillaData = (
 };
 
 export function VillaDetails({ villaId, onNavigate }: VillaDetailsProps) {
-  const fallbackCode = villaId
-    ? villaCodeLookup[villaId as keyof typeof villaCodeLookup] ?? String(villaId)
-    : fallbackVilla.code;
+  const deriveInitialCode = () => {
+    if (!villaId) return fallbackVilla.code;
+    if (typeof villaId === "string" && /[A-Za-z]/.test(villaId)) return villaId;
+    return fallbackVilla.code;
+  };
+
+  const [accommodationCode, setAccommodationCode] = useState<string>(deriveInitialCode);
   const [villa, setVilla] = useState<VillaDetailsData>(() => ({
     ...fallbackVilla,
     id: villaId ?? fallbackVilla.id,
-    code: fallbackCode,
+    code: deriveInitialCode(),
   }));
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showBookingForm, setShowBookingForm] = useState(false);
@@ -332,26 +332,70 @@ export function VillaDetails({ villaId, onNavigate }: VillaDetailsProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!villaId) {
+      setAccommodationCode(fallbackVilla.code);
+      return;
+    }
+
+    if (typeof villaId === "string" && /[A-Za-z]/.test(villaId)) {
+      setAccommodationCode(villaId);
+      return;
+    }
+
+    const numericId = Number(villaId);
+    if (!Number.isFinite(numericId)) {
+      setAccommodationCode(fallbackVilla.code);
+      return;
+    }
+
+    const controller = new AbortController();
+    const fetchCode = async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE}/api/AccommodationCode/${encodeURIComponent(numericId)}`,
+          { signal: controller.signal }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const payload = (await response.json()) as { code?: string };
+        setAccommodationCode(payload?.code ?? fallbackVilla.code);
+      } catch (fetchError) {
+        if (controller.signal.aborted) return;
+        console.error("Failed to load accommodation code", fetchError);
+        setError("Could not load accommodation code. Showing fallback villa.");
+        setAccommodationCode(fallbackVilla.code);
+      }
+    };
+
+    fetchCode();
+
+    return () => controller.abort();
+  }, [villaId]);
+
+  useEffect(() => {
     setVilla({
       ...fallbackVilla,
       id: villaId ?? fallbackVilla.id,
-      code: fallbackCode,
+      code: accommodationCode,
     });
     setCurrentImageIndex(0);
-  }, [villaId, fallbackCode]);
+  }, [villaId, accommodationCode]);
 
   useEffect(() => {
     const controller = new AbortController();
 
     const loadVilla = async () => {
-      if (!fallbackCode) return;
+      if (!accommodationCode) return;
 
       setIsLoading(true);
       setError(null);
 
       try {
         const response = await fetch(
-          `${API_BASE}/api/AccommodationDetails/${encodeURIComponent(fallbackCode)}`,
+          `${API_BASE}/api/AccommodationDetails/${encodeURIComponent(accommodationCode)}`,
           {
             signal: controller.signal,
           }
@@ -363,7 +407,12 @@ export function VillaDetails({ villaId, onNavigate }: VillaDetailsProps) {
 
         const payload = await response.json();
         setVilla(
-          normalizeVillaData(payload, fallbackVilla, fallbackCode, villaId ?? fallbackVilla.id)
+          normalizeVillaData(
+            payload,
+            fallbackVilla,
+            accommodationCode,
+            villaId ?? fallbackVilla.id
+          )
         );
         setCurrentImageIndex(0);
       } catch (fetchError) {
@@ -380,7 +429,7 @@ export function VillaDetails({ villaId, onNavigate }: VillaDetailsProps) {
     loadVilla();
 
     return () => controller.abort();
-  }, [fallbackCode, villaId]);
+  }, [accommodationCode, villaId]);
 
   const reviews = [
     {
