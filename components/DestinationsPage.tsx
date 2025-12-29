@@ -3,7 +3,7 @@ import { MapPin, TrendingUp } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 interface DestinationsPageProps {
-  onNavigate?: (page: "search") => void;
+  onNavigate?: (page: "search" | "home" | "destinations" | "villa" | "bookings", villaId?: number) => void;
   onSearch: (params: {
     location: string;
     guests: number;

@@ -1,8 +1,9 @@
+import { useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Star, Users, Bed, Bath, MapPin, Heart, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
-import { useState } from "react";
 
 interface Villa {
   id: number;
@@ -148,20 +149,21 @@ export function VillaCard({ villa, onViewDetails }: VillaCardProps) {
             </div>
             <span className="text-xs text-gray-500">per night</span>
           </div>
-          <button
+          <Link
+            href={`/accommodation/${villa.id}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewDetails();
+            }}
             className="bg-orange-500 text-white px-4 py-2 rounded-xl hover:bg-orange-600 transition-all text-sm hover:shadow-lg hover:shadow-orange-500/30"
             style={{
               backgroundImage: "linear-gradient(90deg, #ff6b35 0%, #ff6b35 50%, #ff5a2d 100%)",
               backgroundColor: "#ff6b35",
               color: "#fff",
             }}
-            onClick={(e) => {
-              e.stopPropagation();
-              onViewDetails();
-            }}
           >
             View & Book
-          </button>
+          </Link>
         </div>
       </div>
     </motion.div>

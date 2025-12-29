@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Star,
@@ -24,61 +24,363 @@ import { BookingForm } from "./BookingForm";
 import { CountdownTimer } from "./CountdownTimer";
 
 interface VillaDetailsProps {
-  villaId: number;
-  onNavigate: (page: "search") => void;
+  villaId?: number | string | null;
+  onNavigate: (page: "search" | "home" | "destinations" | "villa" | "bookings") => void;
 }
 
-const villaData = {
-  1: {
-    id: 1,
-    name: "Villa Sunset Paradise",
-    location: "Costa del Sol, Spain",
-    coordinates: "36.7213° N, 4.4214° W",
-    images: [
-      "https://images.unsplash.com/photo-1758192838598-a1de4da5dcaf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjB2aWxsYSUyMHBvb2wlMjBzdW5zZXR8ZW58MXx8fHwxNzYzOTMyOTUyfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "https://images.unsplash.com/photo-1757262798623-a215e869d708?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBpbnRlcmllb3IyMmxpdmluZ3xlbnwxfHx8fDE3NjM5MzI5NTMw&ixlib=rb-4.1.0&q=80&w=1080",
-      "https://images.unsplash.com/photo-1601221998768-c0cdf463a393?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aWxsYSUyMGJlZHJvb20lMjBsdXh1cnl8ZW58MXx8fHwxNzYzOTMyOTU0fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "https://images.unsplash.com/photo-1729605412044-81f6acce4370?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBwb29sJTIwb2NlYW4lMjB2aWV3fGVufDF8fHx8MTc2MzkzMjk1NHww&ixlib=rb-4.1.0&q=80&w=1080",
-    ],
-    sleeps: 8,
-    bedrooms: 4,
-    bathrooms: 3,
-    price: 285,
-    originalPrice: 425,
-    rating: 4.9,
-    reviews: 127,
-    discount: 33,
-    leftInStock: 2,
-    description:
-      "Stunning luxury villa perched on the hillside with breathtaking sea views. This spacious property features a private infinity pool, modern interiors, and direct access to a secluded beach. Perfect for families or groups seeking an unforgettable Mediterranean escape.",
-    amenities: [
-      { icon: Wifi, name: "High-speed WiFi", included: true },
-      { icon: Droplets, name: "Private Pool", included: true },
-      { icon: Wind, name: "Air Conditioning", included: true },
-      { icon: Car, name: "Free Parking", included: true },
-      { name: "Sea View", included: true },
-      { name: "BBQ Area", included: true },
-      { name: "Outdoor Dining", included: true },
-      { name: "Smart TV", included: true },
-      { name: "Dishwasher", included: true },
-      { name: "Washing Machine", included: true },
-      { name: "Beach Towels", included: true },
-      { name: "Hair Dryer", included: true },
-    ],
-    rules: [
-      { text: "Check-in: 4:00 PM - 10:00 PM", allowed: true },
-      { text: "Check-out: 11:00 AM", allowed: true },
-      { text: "No smoking inside", allowed: false },
-      { text: "No pets allowed", allowed: false },
-      { text: "No parties or events", allowed: false },
-    ],
-  },
+type Amenity = { icon?: typeof Wifi; name: string; included: boolean };
+type VillaRule = { text: string; allowed: boolean };
+
+type VillaDetailsData = {
+  id: number | string;
+  code: string;
+  name: string;
+  location: string;
+  coordinates?: string;
+  lat?: number;
+  lon?: number;
+  images: string[];
+  sleeps: number;
+  bedrooms: number;
+  bathrooms: number;
+  price: number;
+  originalPrice: number;
+  rating: number;
+  reviews: number;
+  discount: number;
+  leftInStock: number;
+  description: string;
+  amenities: Amenity[];
+  rules: VillaRule[];
+};
+
+type ApiAmenity = { name?: string; included?: boolean } | string;
+type ApiRule = { text?: string; allowed?: boolean } | string;
+type ApiVillaResponse = Partial<{
+  id: number | string;
+  accommodationCode: string;
+  code: string;
+  name: string;
+  title: string;
+  location: string;
+  coordinates: string;
+  geo: string;
+  images: string[];
+  sleeps: number | string;
+  maxOccupancy: number | string;
+  bedrooms: number | string;
+  bedroomCount: number | string;
+  bathrooms: number | string;
+  bathroomCount: number | string;
+  bathRooms?: { number?: number | string };
+  bedRooms?: { number?: number | string };
+  rooms?: { number?: number | string };
+  toilets?: { number?: number | string };
+  pax?: number | string;
+  paxByValidity?: { item?: { value?: number | string }[] };
+  babiesByValidity?: { item?: { value?: number | string }[] };
+  price: number | string;
+  nightlyRate: number | string;
+  originalPrice: number | string;
+  original_rate: number | string;
+  averageRating: number | string;
+  reviews: number | string;
+  reviewsCount: number | string;
+  ratingDetails?: { overAllRating?: number | string; nbrOfReviews?: number | string };
+  rating?: { overAllRating?: number | string; nbrOfReviews?: number | string } | number | string;
+  discount: number | string;
+  leftInStock: number | string;
+  availability: number | string;
+  description: string;
+  summary: string;
+  descriptions?: { description?: { type?: string; language?: string; value?: string }[] };
+  country?: { language?: string; content?: string }[];
+  region?: { language?: string; content?: string }[];
+  place?: { language?: string; content?: string }[];
+  address?: string | { latitude?: string; longitude?: string; postalCode?: string };
+  media?: { mediaItem?: { uri?: string; format?: string; main?: boolean; sortOrder?: number }[] };
+  attributes?: { attribute?: { name?: string; value?: string | null }[] };
+  amenities: ApiAmenity[];
+  rules: ApiRule[];
+}>;
+
+const API_BASE = (process.env.NEXT_PUBLIC_ACCOMMODATION_API_BASE ?? "https://localhost:7214").replace(
+  /\/$/,
+  ""
+);
+
+const villaCodeLookup: Record<number | string, string> = {
+  1: "FI1250.1304.1",
+};
+
+const fallbackVilla: VillaDetailsData = {
+  id: 1,
+  code: "FI1250.1304.1",
+  name: "Villa Sunset Paradise",
+  location: "Costa del Sol, Spain",
+  coordinates: "36.7213 N, 4.4214 W",
+  images: [
+    "https://images.unsplash.com/photo-1758192838598-a1de4da5dcaf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjB2aWxsYSUyMHBvb2wlMjBzdW5zZXR8ZW58MXx8fHwxNzYzOTMyOTUyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+    "https://images.unsplash.com/photo-1757262798623-a215e869d708?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBpbnRlcmllb3IyMmxpdmluZ3xlbnwxfHx8fDE3NjM5MzI5NTMw&ixlib=rb-4.1.0&q=80&w=1080",
+    "https://images.unsplash.com/photo-1601221998768-c0cdf463a393?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aWxsYSUyMGJlZHJvb20lMjBsdXh1cnl8ZW58MXx8fHwxNzYzOTMyOTU0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+    "https://images.unsplash.com/photo-1729605412044-81f6acce4370?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBwb29sJTIwb2NlYW4lMjB2aWV3fGVufDF8fHx8MTc2MzkzMjk1NHww&ixlib=rb-4.1.0&q=80&w=1080",
+  ],
+  sleeps: 8,
+  bedrooms: 4,
+  bathrooms: 3,
+  price: 285,
+  originalPrice: 425,
+  rating: 4.9,
+  reviews: 127,
+  discount: 33,
+  leftInStock: 2,
+  description:
+    "Stunning luxury villa perched on the hillside with breathtaking sea views. This spacious property features a private infinity pool, modern interiors, and direct access to a secluded beach. Perfect for families or groups seeking an unforgettable Mediterranean escape.",
+  amenities: [
+    { icon: Wifi, name: "High-speed WiFi", included: true },
+    { icon: Droplets, name: "Private Pool", included: true },
+    { icon: Wind, name: "Air Conditioning", included: true },
+    { icon: Car, name: "Free Parking", included: true },
+    { name: "Sea View", included: true },
+    { name: "BBQ Area", included: true },
+    { name: "Outdoor Dining", included: true },
+    { name: "Smart TV", included: true },
+    { name: "Dishwasher", included: true },
+    { name: "Washing Machine", included: true },
+    { name: "Beach Towels", included: true },
+    { name: "Hair Dryer", included: true },
+  ],
+  rules: [
+    { text: "Check-in: 4:00 PM - 10:00 PM", allowed: true },
+    { text: "Check-out: 11:00 AM", allowed: true },
+    { text: "No smoking inside", allowed: false },
+    { text: "No pets allowed", allowed: false },
+    { text: "No parties or events", allowed: false },
+  ],
+};
+
+const toNumber = (value: number | string | null | undefined, fallback: number): number => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const parseLatLonFromString = (coords?: string | null): { lat: number; lon: number } | null => {
+  if (!coords) return null;
+  const matches = coords.match(/-?\d+(\.\d+)?/g);
+  if (!matches || matches.length < 2) return null;
+  let [lat, lon] = matches.map((v) => parseFloat(v));
+  const lower = coords.toLowerCase();
+  if (lower.includes("s")) lat = -Math.abs(lat);
+  if (lower.includes("w")) lon = -Math.abs(lon);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  return { lat, lon };
+};
+
+const pickFirstLocalized = (
+  entries: { language?: string; content?: string }[] | undefined,
+  lang: string
+): string | undefined => {
+  if (!entries || entries.length === 0) return undefined;
+  const byLang = entries.find((item) => item.language?.toLowerCase() === lang.toLowerCase());
+  return (byLang ?? entries[0])?.content ?? undefined;
+};
+
+const cleanName = (value: string) =>
+  value
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .trim();
+
+const normalizeVillaData = (
+  data: ApiVillaResponse | null | undefined,
+  fallback: VillaDetailsData,
+  fallbackCode: string,
+  fallbackId: number | string
+): VillaDetailsData => {
+  const sleepsFromPax =
+    toNumber(
+      data?.pax ??
+        data?.paxByValidity?.item?.[0]?.value ??
+        data?.babiesByValidity?.item?.[0]?.value,
+      fallback.sleeps
+    ) || fallback.sleeps;
+
+  const bedroomsFromApi = toNumber(
+    data?.bedRooms?.number ?? data?.bedrooms ?? data?.bedroomCount ?? data?.rooms?.number,
+    fallback.bedrooms
+  );
+
+  const bathroomsFromApi = toNumber(
+    data?.bathRooms?.number ?? data?.bathrooms ?? data?.bathroomCount ?? data?.toilets?.number,
+    fallback.bathrooms
+  );
+
+  const imagesFromApi =
+    data?.media?.mediaItem
+      ?.filter((item) => item.format === "image" && item.uri)
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+      .map((item) => item.uri as string) ?? [];
+
+  const descriptionFromApi =
+    data?.descriptions?.description?.find((d) => d.language?.toLowerCase() === "en")?.value ??
+    data?.descriptions?.description?.[0]?.value ??
+    data?.description;
+
+  const locationFromApi = [
+    pickFirstLocalized(data?.place, "EN"),
+    pickFirstLocalized(data?.region, "EN"),
+    pickFirstLocalized(data?.country, "EN"),
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  const addressString = typeof data?.address === "string" ? data.address : undefined;
+  const addressCoords =
+    data?.address && typeof data.address === "object"
+      ? { lat: data.address.latitude, lon: data.address.longitude }
+      : null;
+
+  const coords =
+    addressCoords?.lat && addressCoords?.lon
+      ? `${addressCoords.lat}, ${addressCoords.lon}`
+      : data?.geo ?? fallback.coordinates;
+
+  const latLonFromString = coords ? parseLatLonFromString(coords) : null;
+  const latLon =
+    (addressCoords?.lat && addressCoords?.lon
+      ? { lat: Number(addressCoords.lat), lon: Number(addressCoords.lon) }
+      : null) ??
+    latLonFromString;
+
+  const ratingValue =
+    typeof data?.rating === "object"
+      ? data.rating?.overAllRating
+      : data?.rating ?? data?.ratingDetails?.overAllRating ?? data?.averageRating;
+
+  const reviewsValue =
+    typeof data?.rating === "object"
+      ? data.rating?.nbrOfReviews
+      : data?.ratingDetails?.nbrOfReviews ?? data?.reviews ?? data?.reviewsCount;
+
+  const amenitiesFromAttributes =
+    data?.attributes?.attribute?.map((attr) => ({
+      name: cleanName(attr.name ?? "Amenity"),
+      included: true,
+    })) ?? null;
+
+  const amenitiesFromApi =
+    Array.isArray(data?.amenities) && data.amenities.length > 0
+      ? data.amenities
+          .map((amenity: ApiAmenity) => ({
+            name: typeof amenity === "string" ? amenity : amenity?.name ?? "",
+            included: typeof amenity === "string" ? true : amenity?.included ?? true,
+          }))
+          .filter((amenity: Amenity) => amenity.name)
+      : amenitiesFromAttributes;
+
+  const rulesFromApi =
+    Array.isArray(data?.rules) && data.rules.length > 0
+      ? data.rules
+          .map((rule: ApiRule) => ({
+            text: typeof rule === "string" ? rule : rule?.text ?? "",
+            allowed: typeof rule === "string" ? true : rule?.allowed ?? true,
+          }))
+          .filter((rule: VillaRule) => rule.text)
+      : null;
+
+  return {
+    id: data?.id ?? fallbackId,
+    code: data?.code ?? data?.accommodationCode ?? fallbackCode,
+    name: data?.name ?? data?.title ?? fallback.name,
+    location: (locationFromApi || data?.location || addressString) ?? fallback.location,
+    coordinates: coords ?? fallback.coordinates,
+    lat: latLon?.lat ?? fallback.lat,
+    lon: latLon?.lon ?? fallback.lon,
+    images:
+      (Array.isArray(data?.images) && data.images.length > 0 ? data.images : imagesFromApi) ??
+      fallback.images,
+    sleeps: toNumber(data?.sleeps ?? data?.maxOccupancy ?? sleepsFromPax, fallback.sleeps),
+    bedrooms: bedroomsFromApi,
+    bathrooms: bathroomsFromApi,
+    price: toNumber(data?.price ?? data?.nightlyRate, fallback.price),
+    originalPrice: toNumber(
+      data?.originalPrice ?? data?.original_rate ?? data?.price,
+      fallback.originalPrice
+    ),
+    rating: toNumber(ratingValue, fallback.rating),
+    reviews: toNumber(reviewsValue, fallback.reviews),
+    discount: toNumber(data?.discount, fallback.discount),
+    leftInStock: toNumber(data?.leftInStock ?? data?.availability, fallback.leftInStock),
+    description: descriptionFromApi ?? data?.description ?? data?.summary ?? fallback.description,
+    amenities: amenitiesFromApi ?? fallback.amenities,
+    rules: rulesFromApi ?? fallback.rules,
+  };
 };
 
 export function VillaDetails({ villaId, onNavigate }: VillaDetailsProps) {
+  const fallbackCode = villaId
+    ? villaCodeLookup[villaId as keyof typeof villaCodeLookup] ?? String(villaId)
+    : fallbackVilla.code;
+  const [villa, setVilla] = useState<VillaDetailsData>(() => ({
+    ...fallbackVilla,
+    id: villaId ?? fallbackVilla.id,
+    code: fallbackCode,
+  }));
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showBookingForm, setShowBookingForm] = useState(false);
-  const villa = villaData[villaId as keyof typeof villaData] || villaData[1];
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setVilla({
+      ...fallbackVilla,
+      id: villaId ?? fallbackVilla.id,
+      code: fallbackCode,
+    });
+    setCurrentImageIndex(0);
+  }, [villaId, fallbackCode]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadVilla = async () => {
+      if (!fallbackCode) return;
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(
+          `${API_BASE}/api/AccommodationDetails/${encodeURIComponent(fallbackCode)}`,
+          {
+            signal: controller.signal,
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const payload = await response.json();
+        setVilla(
+          normalizeVillaData(payload, fallbackVilla, fallbackCode, villaId ?? fallbackVilla.id)
+        );
+        setCurrentImageIndex(0);
+      } catch (fetchError) {
+        if (controller.signal.aborted) return;
+        console.error("Failed to load villa details", fetchError);
+        setError("Could not load the latest villa details. Showing fallback information instead.");
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadVilla();
+
+    return () => controller.abort();
+  }, [fallbackCode, villaId]);
 
   const reviews = [
     {
@@ -104,6 +406,8 @@ export function VillaDetails({ villaId, onNavigate }: VillaDetailsProps) {
     },
   ];
 
+  const images = villa.images && villa.images.length > 0 ? villa.images : fallbackVilla.images;
+
   return (
     <div className="md:mt-20 pb-20 md:pb-0">
       {/* Back Button */}
@@ -127,13 +431,28 @@ export function VillaDetails({ villaId, onNavigate }: VillaDetailsProps) {
         </div>
       </div>
 
+      {(isLoading || error) && (
+        <div className="max-w-7xl mx-auto px-4 mt-4 space-y-2">
+          {isLoading && (
+            <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700">
+              Loading villa details...
+            </div>
+          )}
+          {error && (
+            <div className="rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 text-yellow-800">
+              {error}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Image Gallery */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-2 md:gap-4">
           <div className="md:col-span-2 md:row-span-2">
             <div className="relative h-64 md:h-full rounded-xl overflow-hidden group cursor-pointer">
               <ImageWithFallback
-                src={villa.images[currentImageIndex]}
+                src={images[currentImageIndex]}
                 alt={villa.name}
                 className="w-full h-full object-cover"
               />
@@ -144,7 +463,7 @@ export function VillaDetails({ villaId, onNavigate }: VillaDetailsProps) {
               )}
             </div>
           </div>
-          {villa.images.slice(1, 5).map((img, idx) => (
+          {images.slice(1, 5).map((img, idx) => (
             <div
               key={idx}
               className="hidden md:block h-48 rounded-xl overflow-hidden cursor-pointer group"
@@ -161,7 +480,7 @@ export function VillaDetails({ villaId, onNavigate }: VillaDetailsProps) {
 
         {/* Mobile Image Indicators */}
         <div className="flex justify-center gap-2 mt-3 md:hidden">
-          {villa.images.map((_, idx) => (
+          {images.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentImageIndex(idx)}
@@ -267,14 +586,45 @@ export function VillaDetails({ villaId, onNavigate }: VillaDetailsProps) {
             {/* Location */}
             <div className="mb-8">
               <h2 className="text-2xl mb-4">Location</h2>
-              <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
-                <div className="text-center text-gray-600">
-                  <MapPin className="w-12 h-12 mx-auto mb-2" />
-                  <p>{villa.location}</p>
-                  <p className="text-sm">{villa.coordinates}</p>
-                  <p className="text-xs mt-2">Interactive map would load here</p>
-                </div>
+              <div className="bg-gray-100 rounded-lg h-64 overflow-hidden flex items-center justify-center">
+                {villa.lat !== undefined && villa.lon !== undefined ? (
+                  <iframe
+                    title={`Map of ${villa.location}`}
+                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${(
+                      villa.lon - 0.02
+                    ).toFixed(4)}%2C${(villa.lat - 0.02).toFixed(4)}%2C${(
+                      villa.lon + 0.02
+                    ).toFixed(4)}%2C${(villa.lat + 0.02).toFixed(4)}&layer=mapnik&marker=${villa.lat.toFixed(
+                      5
+                    )}%2C${villa.lon.toFixed(5)}`}
+                    className="w-full h-full border-0"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                ) : (
+                  <div className="text-center text-gray-600 px-4">
+                    <MapPin className="w-12 h-12 mx-auto mb-2" />
+                    <p>{villa.location}</p>
+                    <p className="text-sm">{villa.coordinates}</p>
+                    <p className="text-xs mt-2">Map preview unavailable for this villa</p>
+                  </div>
+                )}
               </div>
+              {villa.lat !== undefined && villa.lon !== undefined && (
+                <div className="text-xs text-gray-600 mt-2 flex items-center gap-2">
+                  <span>Map data © OpenStreetMap contributors</span>
+                  <a
+                    href={`https://www.openstreetmap.org/?mlat=${villa.lat.toFixed(
+                      5
+                    )}&mlon=${villa.lon.toFixed(5)}#map=14/${villa.lat.toFixed(5)}/${villa.lon.toFixed(5)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-orange-600 hover:underline"
+                  >
+                    View on OpenStreetMap
+                  </a>
+                </div>
+              )}
             </div>
 
             {/* Reviews */}
@@ -414,3 +764,4 @@ export function VillaDetails({ villaId, onNavigate }: VillaDetailsProps) {
     </div>
   );
 }
+

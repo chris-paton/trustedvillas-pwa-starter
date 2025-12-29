@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Clock } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -10,8 +10,12 @@ interface CountdownTimerProps {
 
 function CountdownTimer({ endTime }: CountdownTimerProps) {
   // Default to 14 hours, 23 minutes, 11 seconds from now if no endTime provided
-  const defaultEndTime = new Date(Date.now() + (14 * 60 * 60 * 1000) + (23 * 60 * 1000) + (11 * 1000));
-  const targetTime = endTime || defaultEndTime;
+  const targetTime = useMemo(
+    () =>
+      endTime ??
+      new Date(Date.now() + 14 * 60 * 60 * 1000 + 23 * 60 * 1000 + 11 * 1000),
+    [endTime ? endTime.getTime() : null]
+  );
 
   const [timeLeft, setTimeLeft] = useState({
     hours: 0,

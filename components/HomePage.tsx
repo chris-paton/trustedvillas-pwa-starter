@@ -9,7 +9,7 @@ import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 
 interface HomePageProps {
   onSearch: (params: { location: string; guests: number; checkIn: string; checkOut: string }) => void;
-  onNavigate: (page: "search" | "destinations" | "villa", villaId?: number) => void;
+  onNavigate: (page: "search" | "destinations" | "villa" | "home" | "bookings", villaId?: number) => void;
 }
 
 const topDeals = [

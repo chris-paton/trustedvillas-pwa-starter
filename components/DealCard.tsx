@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Star, Users, Bed, MapPin, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -90,20 +91,21 @@ export function DealCard({ deal, onViewDetails }: DealCardProps) {
             </div>
             <span className="text-xs text-gray-500">per night</span>
           </div>
-          <button
+          <Link
+            href={`/accommodation/${deal.id}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewDetails();
+            }}
             className="bg-gradient-to-r from-orange-500 via-orange-500 to-orange-600 text-white px-4 py-2 rounded-lg text-sm shadow-[0_10px_28px_-12px_rgba(255,107,53,0.6)] hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-12px_rgba(255,107,53,0.7)] transition-all"
             style={{
               backgroundImage: "linear-gradient(90deg, #ff6b35 0%, #ff6b35 50%, #ff5a2d 100%)",
               backgroundColor: "#ff6b35",
               color: "#fff",
             }}
-            onClick={(e) => {
-              e.stopPropagation();
-              onViewDetails();
-            }}
           >
             Book Now
-          </button>
+          </Link>
         </div>
       </div>
     </motion.div>

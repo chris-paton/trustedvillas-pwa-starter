@@ -15,7 +15,7 @@ interface SearchResultsProps {
     checkOut: string;
   };
   onViewVilla: (id: number) => void;
-  onNavigate: (page: "home") => void;
+  onNavigate: (page: "home" | "search" | "destinations" | "villa" | "bookings") => void;
 }
 
 const mockVillas = [

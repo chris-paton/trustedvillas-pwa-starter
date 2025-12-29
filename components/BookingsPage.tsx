@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 
 interface BookingsPageProps {
-  onNavigate: (page: "villa", villaId?: number) => void;
+  onNavigate: (page: "villa" | "home" | "search" | "destinations" | "bookings", villaId?: number) => void;
 }
 
 const mockBookings = [
