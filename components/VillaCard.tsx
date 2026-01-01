@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 
 interface Villa {
-  id: number;
+  id: string;
   name: string;
   location: string;
   image: string;
@@ -14,12 +14,12 @@ interface Villa {
   bedrooms: number;
   bathrooms: number;
   price: number;
-  originalPrice: number;
+  originalPrice?: number;
   rating: number;
   reviews: number;
   features: string[];
-  leftInStock: number;
-  discount: number;
+  leftInStock?: number;
+  discount?: number;
 }
 
 interface VillaCardProps {
@@ -39,9 +39,12 @@ const urgencyVariants = [
 
 export function VillaCard({ villa, onViewDetails }: VillaCardProps) {
   const [isSaved, setIsSaved] = useState(false);
-  
+
   // Select urgency message based on villa id for consistency
-  const urgencyMessage = urgencyVariants[villa.id % urgencyVariants.length];
+  // Use a simple hash of the ID (convert to string first to handle both string and number IDs)
+  const idString = String(villa.id);
+  const hashCode = idString.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const urgencyMessage = urgencyVariants[hashCode % urgencyVariants.length];
 
   return (
     <motion.div
@@ -74,7 +77,7 @@ export function VillaCard({ villa, onViewDetails }: VillaCardProps) {
         </button>
 
         {/* Discount Badge */}
-        {villa.discount > 0 && (
+        {villa.discount && villa.discount > 0 && (
           <div className="absolute top-3 left-3">
             <Badge className="bg-red-500 text-white border-0">
               {villa.discount}% OFF
@@ -143,7 +146,7 @@ export function VillaCard({ villa, onViewDetails }: VillaCardProps) {
           <div>
             <div className="flex items-baseline gap-2">
               <span className="text-2xl text-orange-500">£{villa.price}</span>
-              {villa.originalPrice > villa.price && (
+              {villa.originalPrice && villa.originalPrice > villa.price && (
                 <span className="text-sm text-gray-500 line-through">£{villa.originalPrice}</span>
               )}
             </div>

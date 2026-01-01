@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { SlidersHorizontal, MapIcon, LayoutGrid, ChevronDown } from "lucide-react";
+import { SlidersHorizontal, MapIcon, LayoutGrid, ChevronDown, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { VillaCard } from "./VillaCard";
 import { FilterSidebar } from "./FilterSidebar";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { transformAccommodations, Villa } from "@/utils/accommodationTransformer";
+import { AccommodationListResponse } from "@/types/accommodation";
+import { buildAPIQueryParams, buildQueryString } from "@/utils/searchParamsBuilder";
 
 interface SearchResultsProps {
   searchParams: {
@@ -14,108 +17,9 @@ interface SearchResultsProps {
     checkIn: string;
     checkOut: string;
   };
-  onViewVilla: (id: number) => void;
+  onViewVilla: (id: string) => void;
   onNavigate: (page: "home" | "search" | "destinations" | "villa" | "bookings") => void;
 }
-
-const mockVillas = [
-  {
-    id: 1,
-    name: "Villa Sunset Paradise",
-    location: "Costa del Sol, Spain",
-    image: "https://images.unsplash.com/photo-1758192838598-a1de4da5dcaf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjB2aWxsYSUyMHBvb2wlMjBzdW5zZXR8ZW58MXx8fHwxNzYzOTMyOTUyfDA&ixlib=rb-4.1.0&q=80&w=1080",
-    sleeps: 8,
-    bedrooms: 4,
-    bathrooms: 3,
-    price: 285,
-    originalPrice: 425,
-    rating: 4.9,
-    reviews: 127,
-    features: ["Pool", "WiFi", "Sea View", "Air Con"],
-    leftInStock: 2,
-    discount: 33,
-  },
-  {
-    id: 2,
-    name: "Tuscan Hillside Retreat",
-    location: "Tuscany, Italy",
-    image: "https://images.unsplash.com/photo-1699394631060-a643e09d4780?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpdGFsaWFuJTIwdmlsbGElMjB0dXNjYW55fGVufDF8fHx8MTc2MzkzMjk1M3ww&ixlib=rb-4.1.0&q=80&w=1080",
-    sleeps: 6,
-    bedrooms: 3,
-    bathrooms: 2,
-    price: 320,
-    originalPrice: 460,
-    rating: 5.0,
-    reviews: 89,
-    features: ["Pool", "WiFi", "Garden", "BBQ"],
-    leftInStock: 1,
-    discount: 30,
-  },
-  {
-    id: 3,
-    name: "Provence Lavender Estate",
-    location: "Provence, France",
-    image: "https://images.unsplash.com/photo-1763505901553-7f9700215b35?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmcmVuY2glMjB2aWxsYSUyMHByb3ZlbmNlfGVufDF8fHx8MTc2MzkzMjk1M3ww&ixlib=rb-4.1.0&q=80&w=1080",
-    sleeps: 10,
-    bedrooms: 5,
-    bathrooms: 4,
-    price: 445,
-    originalPrice: 650,
-    rating: 4.8,
-    reviews: 156,
-    features: ["Pool", "WiFi", "Hot Tub", "Tennis Court"],
-    leftInStock: 3,
-    discount: 32,
-  },
-  {
-    id: 4,
-    name: "Ocean View Villa Deluxe",
-    location: "Algarve, Portugal",
-    image: "https://images.unsplash.com/photo-1729605412044-81f6acce4370?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBwb29sJTIwb2NlYW4lMjB2aWV3fGVufDF8fHx8MTc2MzkzMjk1NHww&ixlib=rb-4.1.0&q=80&w=1080",
-    sleeps: 12,
-    bedrooms: 6,
-    bathrooms: 5,
-    price: 520,
-    originalPrice: 775,
-    rating: 4.9,
-    reviews: 203,
-    features: ["Pool", "WiFi", "Sea View", "Gym"],
-    leftInStock: 2,
-    discount: 33,
-  },
-  {
-    id: 5,
-    name: "Mediterranean Pearl",
-    location: "Mallorca, Spain",
-    image: "https://images.unsplash.com/photo-1629199159634-28a88785cee5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZWRpdGVycmFuZWFuJTIwdmlsbGElMjBleHRlcmlvcnxlbnwxfHx8fDE3NjM5MzI5NTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    sleeps: 8,
-    bedrooms: 4,
-    bathrooms: 3,
-    price: 395,
-    originalPrice: 560,
-    rating: 4.7,
-    reviews: 92,
-    features: ["Pool", "WiFi", "Beach Access", "Air Con"],
-    leftInStock: 4,
-    discount: 29,
-  },
-  {
-    id: 6,
-    name: "Luxury Villa Horizonte",
-    location: "Costa del Sol, Spain",
-    image: "https://images.unsplash.com/photo-1757262798623-a215e869d708?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjB2aWxsYSUyMGludGVyaW9uJTIwbGl2aW5nfGVufDF8fHx8MTc2MzkzMjk1Mnww&ixlib=rb-4.1.0&q=80&w=1080",
-    sleeps: 6,
-    bedrooms: 3,
-    bathrooms: 2,
-    price: 275,
-    originalPrice: 390,
-    rating: 4.8,
-    reviews: 145,
-    features: ["Pool", "WiFi", "Mountain View", "BBQ"],
-    leftInStock: 5,
-    discount: 29,
-  },
-];
 
 export function SearchResults({ searchParams, onViewVilla, onNavigate }: SearchResultsProps) {
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
@@ -125,6 +29,44 @@ export function SearchResults({ searchParams, onViewVilla, onNavigate }: SearchR
     amenities: [] as string[],
     bedrooms: 0,
   });
+  const [villas, setVillas] = useState<Villa[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch accommodations from API
+  useEffect(() => {
+    async function fetchAccommodations() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Build API query parameters from search params (now async)
+        const apiParams = await buildAPIQueryParams(searchParams);
+        const queryString = buildQueryString(apiParams);
+        const apiUrl = `/api/accommodation-list${queryString ? `?${queryString}` : ''}`;
+
+        console.log('Fetching with params:', apiParams);
+        console.log('API URL:', apiUrl);
+
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch accommodations');
+        }
+
+        const data: AccommodationListResponse = await response.json();
+        const transformedVillas = transformAccommodations(data);
+        setVillas(transformedVillas);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('Error fetching accommodations:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAccommodations();
+  }, [searchParams]);
 
   return (
     <div className="md:mt-20">
@@ -137,7 +79,7 @@ export function SearchResults({ searchParams, onViewVilla, onNavigate }: SearchR
                 {searchParams.location || "All Destinations"}
               </h1>
               <p className="text-sm text-gray-600">
-                {mockVillas.length} villas available
+                {loading ? "Loading..." : `${villas.length} villas available`}
                 {searchParams.guests > 0 && ` • ${searchParams.guests} guests`}
               </p>
             </div>
@@ -213,9 +155,24 @@ export function SearchResults({ searchParams, onViewVilla, onNavigate }: SearchR
 
           {/* Villa Grid */}
           <div className="flex-1">
-            {viewMode === "grid" ? (
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="text-center">
+                  <Loader2 className="w-12 h-12 mx-auto mb-4 text-orange-500 animate-spin" />
+                  <p className="text-gray-600">Loading villas...</p>
+                </div>
+              </div>
+            ) : error ? (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
+                <p className="text-red-600 mb-2">Failed to load accommodations</p>
+                <p className="text-sm text-gray-600 mb-4">{error}</p>
+                <Button onClick={() => window.location.reload()} variant="outline">
+                  Try Again
+                </Button>
+              </div>
+            ) : viewMode === "grid" ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {mockVillas.map((villa, index) => (
+                {villas.map((villa, index) => (
                   <motion.div
                     key={villa.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -237,7 +194,7 @@ export function SearchResults({ searchParams, onViewVilla, onNavigate }: SearchR
             )}
 
             {/* Load More */}
-            {viewMode === "grid" && (
+            {viewMode === "grid" && !loading && !error && villas.length > 0 && (
               <div className="text-center mt-8">
                 <Button variant="outline" className="px-8">
                   Load More Villas
@@ -254,7 +211,7 @@ export function SearchResults({ searchParams, onViewVilla, onNavigate }: SearchR
           <h3 className="text-xl mb-2">Based on your search, you might also like...</h3>
           <p className="text-gray-600 mb-4">Villas for {searchParams.guests} guests in {searchParams.location || "Europe"}</p>
           <div className="flex gap-4 overflow-x-auto pb-4">
-            {mockVillas.slice(0, 3).map((villa) => (
+            {!loading && villas.slice(0, 3).map((villa) => (
               <div
                 key={villa.id}
                 onClick={() => onViewVilla(villa.id)}

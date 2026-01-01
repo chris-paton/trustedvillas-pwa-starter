@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 
 interface Deal {
-  id: number;
+  id: string;
   name: string;
   location: string;
   image: string;

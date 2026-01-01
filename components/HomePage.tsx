@@ -9,12 +9,12 @@ import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 
 interface HomePageProps {
   onSearch: (params: { location: string; guests: number; checkIn: string; checkOut: string }) => void;
-  onNavigate: (page: "search" | "destinations" | "villa" | "home" | "bookings", villaId?: number) => void;
+  onNavigate: (page: "search" | "destinations" | "villa" | "home" | "bookings", villaId?: string) => void;
 }
 
 const topDeals = [
   {
-    id: 1,
+    id: "1",
     name: "Villa Sunset Paradise",
     location: "Costa del Sol, Spain",
     image: "https://images.unsplash.com/photo-1758192838598-a1de4da5dcaf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjB2aWxsYSUyMHBvb2wlMjBzdW5zZXR8ZW58MXx8fHwxNzYzOTMyOTUyfDA&ixlib=rb-4.1.0&q=80&w=1080",
@@ -28,7 +28,7 @@ const topDeals = [
     discount: 33,
   },
   {
-    id: 2,
+    id: "2",
     name: "Tuscan Hillside Retreat",
     location: "Tuscany, Italy",
     image: "https://images.unsplash.com/photo-1699394631060-a643e09d4780?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpdGFsaWFuJTIwdmlsbGElMjB0dXNjYW55fGVufDF8fHx8MTc2MzkzMjk1M3ww&ixlib=rb-4.1.0&q=80&w=1080",
@@ -42,7 +42,7 @@ const topDeals = [
     discount: 30,
   },
   {
-    id: 3,
+    id: "3",
     name: "Provence Lavender Estate",
     location: "Provence, France",
     image: "https://images.unsplash.com/photo-1763505901553-7f9700215b35?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmcmVuY2glMjB2aWxsYSUyMHByb3ZlbmNlfGVufDF8fHx8MTc2MzkzMjk1M3ww&ixlib=rb-4.1.0&q=80&w=1080",
@@ -56,7 +56,7 @@ const topDeals = [
     discount: 32,
   },
   {
-    id: 4,
+    id: "4",
     name: "Ocean View Villa Deluxe",
     location: "Algarve, Portugal",
     image: "https://images.unsplash.com/photo-1729605412044-81f6acce4370?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBwb29sJTIwb2NlYW4lMjB2aWV3fGVufDF8fHx8MTc2MzkzMjk1NHww&ixlib=rb-4.1.0&q=80&w=1080",

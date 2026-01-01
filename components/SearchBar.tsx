@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Search, MapPin, Users, Calendar as CalendarIcon } from "lucide-react";
+import { Search, MapPin, Users, Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
+import { useLocationSuggestions } from "@/hooks/useLocationSuggestions";
 
 interface SearchBarProps {
   onSearch: (params: {
@@ -19,17 +20,6 @@ interface SearchBarProps {
   };
 }
 
-const popularLocations = [
-  "Costa del Sol, Spain",
-  "Tuscany, Italy",
-  "Provence, France",
-  "Algarve, Portugal",
-  "Mallorca, Spain",
-  "Amalfi Coast, Italy",
-  "French Riviera, France",
-  "Ibiza, Spain",
-];
-
 export function SearchBar({ onSearch, defaultValues }: SearchBarProps) {
   const [location, setLocation] = useState(defaultValues?.location || "");
   const [guests, setGuests] = useState(defaultValues?.guests || 2);
@@ -38,9 +28,11 @@ export function SearchBar({ onSearch, defaultValues }: SearchBarProps) {
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
   const [showGuestsPicker, setShowGuestsPicker] = useState(false);
 
-  const filteredLocations = popularLocations.filter((loc) =>
-    loc.toLowerCase().includes(location.toLowerCase())
-  );
+  // Use the location suggestions hook
+  const { loading, searchLocations } = useLocationSuggestions();
+
+  // Get location suggestions based on search query
+  const locationSuggestions = searchLocations(location, 8);
 
   const handleSearch = () => {
     onSearch({
@@ -72,19 +64,31 @@ export function SearchBar({ onSearch, defaultValues }: SearchBarProps) {
           </div>
 
           {/* Location Suggestions */}
-          {showLocationSuggestions && location && filteredLocations.length > 0 && (
+          {showLocationSuggestions && locationSuggestions.length > 0 && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
-              {filteredLocations.map((loc) => (
+              {loading && (
+                <div className="px-4 py-3 text-center text-gray-500">
+                  <Loader2 className="w-4 h-4 animate-spin inline-block mr-2" />
+                  Loading locations...
+                </div>
+              )}
+              {!loading && locationSuggestions.map((suggestion) => (
                 <button
-                  key={loc}
+                  key={suggestion.id}
                   onClick={() => {
-                    setLocation(loc);
+                    setLocation(suggestion.fullName);
                     setShowLocationSuggestions(false);
                   }}
-                  className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-2"
+                  className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100 last:border-b-0"
                 >
-                  <MapPin className="w-4 h-4 text-gray-400" />
-                  <span>{loc}</span>
+                  <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{suggestion.displayName}</div>
+                    {suggestion.fullName !== suggestion.displayName && (
+                      <div className="text-xs text-gray-500 truncate">{suggestion.fullName}</div>
+                    )}
+                  </div>
+                  <span className="text-xs text-gray-400 uppercase">{suggestion.type}</span>
                 </button>
               ))}
             </div>

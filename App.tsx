@@ -14,7 +14,7 @@ type Page = "home" | "search" | "villa" | "destinations" | "bookings";
 
 type AppProps = {
   initialPage?: Page;
-  initialVillaId?: number | null;
+  initialVillaId?: string | null;
   initialSearchParams?: {
     location?: string;
     guests?: number;
@@ -30,7 +30,7 @@ export default function App({
 }: AppProps) {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState<Page>(initialPage);
-  const [selectedVilla, setSelectedVilla] = useState<number | null>(initialVillaId);
+  const [selectedVilla, setSelectedVilla] = useState<string | null>(initialVillaId);
   const [darkMode, setDarkMode] = useState(false);
   const [wishlistCount] = useState(3); // Mock wishlist count
   const [searchParams, setSearchParams] = useState({
@@ -49,7 +49,7 @@ export default function App({
     return query.toString() ? `/search?${query.toString()}` : "/search";
   };
 
-  const pathForPage = (page: Page, villaId?: number | null) => {
+  const pathForPage = (page: Page, villaId?: string | null) => {
     switch (page) {
       case "home":
         return "/";
@@ -58,7 +58,7 @@ export default function App({
       case "destinations":
         return "/destinations";
       case "villa": {
-        const idToUse = villaId ?? selectedVilla ?? 1;
+        const idToUse = villaId ?? selectedVilla ?? "1";
         return `/accommodation/${idToUse}`;
       }
       case "bookings":
@@ -66,7 +66,7 @@ export default function App({
     }
   };
 
-  const navigateTo = (page: Page, villaId?: number) => {
+  const navigateTo = (page: Page, villaId?: string) => {
     if (villaId !== undefined) {
       setSelectedVilla(villaId);
     }

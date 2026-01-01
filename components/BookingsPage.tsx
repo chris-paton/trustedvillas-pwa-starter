@@ -5,13 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 
 interface BookingsPageProps {
-  onNavigate: (page: "villa" | "home" | "search" | "destinations" | "bookings", villaId?: number) => void;
+  onNavigate: (page: "villa" | "home" | "search" | "destinations" | "bookings", villaId?: string) => void;
 }
 
 const mockBookings = [
   {
     id: 1,
-    villaId: 1,
+    villaId: "1",
     villaName: "Villa Sunset Paradise",
     location: "Costa del Sol, Spain",
     image: "https://images.unsplash.com/photo-1758192838598-a1de4da5dcaf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjB2aWxsYSUyMHBvb2wlMjBzdW5zZXR8ZW58MXx8fHwxNzYzOTMyOTUyfDA&ixlib=rb-4.1.0&q=80&w=1080",
@@ -24,7 +24,7 @@ const mockBookings = [
   },
   {
     id: 2,
-    villaId: 2,
+    villaId: "2",
     villaName: "Tuscan Hillside Retreat",
     location: "Tuscany, Italy",
     image: "https://images.unsplash.com/photo-1699394631060-a643e09d4780?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpdGFsaWFuJTIwdmlsbGElMjB0dXNjYW55fGVufDF8fHx8MTc2MzkzMjk1M3ww&ixlib=rb-4.1.0&q=80&w=1080",
@@ -61,7 +61,7 @@ export function BookingsPage({ onNavigate }: BookingsPageProps) {
               Start planning your dream European getaway!
             </p>
             <Button
-              onClick={() => onNavigate("villa", 1)}
+              onClick={() => onNavigate("search")}
               className="bg-orange-500 hover:bg-orange-600"
             >
               Explore Villas
