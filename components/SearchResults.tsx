@@ -12,7 +12,9 @@ import { buildAPIQueryParams, buildQueryString } from "@/utils/searchParamsBuild
 
 interface SearchResultsProps {
   searchParams: {
-    location: string;
+    location?: string;
+    country?: string;
+    area?: string;
     guests: number;
     checkIn: string;
     checkOut: string;
@@ -76,7 +78,7 @@ export function SearchResults({ searchParams, onViewVilla, onNavigate }: SearchR
           <div className="flex items-center justify-between mb-3">
             <div>
               <h1 className="text-xl md:text-2xl">
-                {searchParams.location || "All Destinations"}
+                {searchParams.area || searchParams.country || searchParams.location || "All Destinations"}
               </h1>
               <p className="text-sm text-gray-600">
                 {loading ? "Loading..." : `${villas.length} villas available`}
