@@ -5,6 +5,9 @@ export interface Villa {
   code: string;
   name: string;
   location: string;
+  place: string;
+  area: string;
+  country: string;
   image: string;
   sleeps: number;
   bedrooms: number;
@@ -65,10 +68,19 @@ export function transformAccommodationToVilla(accommodation: Accommodation, inde
   // Limit to top 4 features
   const topFeatures = features.slice(0, 4);
 
-  // Build location string
-  const place = getLocalizedContent(accommodation.place || []);
-  const country = getLocalizedContent(accommodation.country || []);
-  const location = `${place}${place && country ? ", " : ""}${country}`;
+  // Build location strings - handle both string and localized content formats
+  const place = typeof accommodation.place === 'string'
+    ? accommodation.place
+    : getLocalizedContent(accommodation.place || []);
+  const area = accommodation.area || (typeof accommodation.region === 'string'
+    ? accommodation.region
+    : getLocalizedContent(accommodation.region || []));
+  const country = typeof accommodation.country === 'string'
+    ? accommodation.country
+    : getLocalizedContent(accommodation.country || []);
+
+  // Use location field from API if available, otherwise build from parts
+  const location = accommodation.location || `${place}${place && country ? ", " : ""}${country}`;
 
   // Parse rating
   const rating = parseFloat(accommodation.rating?.overAllRating || "0");
@@ -85,6 +97,9 @@ export function transformAccommodationToVilla(accommodation: Accommodation, inde
     code: accommodation.code || (accommodation.id ? String(accommodation.id) : `MISSING-CODE-${index}`),
     name: accommodation.name,
     location,
+    place,
+    area,
+    country,
     image: imageUrl,
     sleeps: accommodation.pax || 0,
     bedrooms: accommodation.bedRooms?.number || 0,

@@ -137,12 +137,14 @@ export interface Accommodation {
   id?: string | number;
   code: string;
   name: string;
+  location?: string;
+  area?: string | null;
   countryCode: string;
-  country: LocalizedContent[];
+  country: LocalizedContent[] | string;
   regionCode: string;
-  region: LocalizedContent[];
+  region: LocalizedContent[] | string;
   placeCode: string;
-  place: LocalizedContent[];
+  place: LocalizedContent[] | string;
   floor: string | null;
   type: string;
   detailType: string;

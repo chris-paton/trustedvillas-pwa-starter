@@ -226,6 +226,9 @@ export function SearchResults({ searchParams, onViewVilla, onNavigate }: SearchR
                 />
                 <div className="p-3">
                   <h4 className="text-sm mb-1 truncate">{villa.name}</h4>
+                  <p className="text-xs text-gray-500 mb-2 truncate">
+                    {[villa.place, villa.area, villa.country].filter(Boolean).join(', ')}
+                  </p>
                   <p className="text-orange-500">£{villa.price}/night</p>
                 </div>
               </div>

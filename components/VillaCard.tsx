@@ -105,9 +105,11 @@ export function VillaCard({ villa, onViewDetails }: VillaCardProps) {
 
       <div className="p-4">
         <h3 className="text-lg mb-1 truncate">{villa.name}</h3>
-        <div className="flex items-center gap-1 text-gray-500 text-sm mb-3">
-          <MapPin className="w-4 h-4 flex-shrink-0" />
-          <span className="truncate">{villa.location}</span>
+        <div className="flex items-center gap-1 mb-3">
+          <MapPin className="w-4 h-4 flex-shrink-0 text-gray-500" />
+          <span className="text-xs text-gray-500 truncate">
+            {[villa.place, villa.area, villa.country].filter(Boolean).join(', ')}
+          </span>
         </div>
 
         <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">

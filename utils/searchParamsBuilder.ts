@@ -5,7 +5,9 @@ import { locationService } from '@/services/locationService';
  * Maps UI search parameters to API query parameters
  */
 export interface SearchParams {
-  location: string;
+  location?: string;
+  country?: string;
+  area?: string;
   guests: number;
   checkIn: string;
   checkOut: string;
@@ -68,10 +70,19 @@ async function parseLocation(locationStr: string): Promise<Pick<APIQueryParams, 
  * - Sleeps parameter is optional
  */
 export async function buildAPIQueryParams(searchParams: SearchParams): Promise<APIQueryParams> {
+  console.log('buildAPIQueryParams received:', searchParams);
   const apiParams: APIQueryParams = {};
 
-  // Parse and add location parameters
-  if (searchParams.location) {
+  // If specific country/area/location is provided, use it directly
+  if (searchParams.country) {
+    console.log('→ Using country from searchParams:', searchParams.country);
+    apiParams.country = searchParams.country;
+  } else if (searchParams.area) {
+    console.log('→ Using area from searchParams:', searchParams.area);
+    apiParams.area = searchParams.area;
+  } else if (searchParams.location) {
+    console.log('→ Parsing location from searchParams:', searchParams.location);
+    // Only parse if we have a generic location string (old behavior for backwards compatibility)
     const locationParams = await parseLocation(searchParams.location);
     Object.assign(apiParams, locationParams);
 

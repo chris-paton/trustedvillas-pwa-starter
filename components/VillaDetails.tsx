@@ -36,6 +36,9 @@ type VillaDetailsData = {
   code: string;
   name: string;
   location: string;
+  place: string;
+  area: string;
+  country: string;
   coordinates?: string;
   lat?: number;
   lon?: number;
@@ -114,6 +117,9 @@ const fallbackVilla: VillaDetailsData = {
   code: "FI1250.1304.1",
   name: "Villa Sunset Paradise",
   location: "Costa del Sol, Spain",
+  place: "Marbella",
+  area: "Costa del Sol",
+  country: "Spain",
   coordinates: "36.7213 N, 4.4214 W",
   images: [
     "https://images.unsplash.com/photo-1758192838598-a1de4da5dcaf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjB2aWxsYSUyMHBvb2wlMjBzdW5zZXR8ZW58MXx8fHwxNzYzOTMyOTUyfDA&ixlib=rb-4.1.0&q=80&w=1080",
@@ -222,11 +228,11 @@ const normalizeVillaData = (
     data?.descriptions?.description?.[0]?.value ??
     data?.description;
 
-  const locationFromApi = [
-    pickFirstLocalized(data?.place, "EN"),
-    pickFirstLocalized(data?.region, "EN"),
-    pickFirstLocalized(data?.country, "EN"),
-  ]
+  const place = pickFirstLocalized(data?.place, "EN") || "";
+  const area = pickFirstLocalized(data?.region, "EN") || "";
+  const country = pickFirstLocalized(data?.country, "EN") || "";
+
+  const locationFromApi = [place, area, country]
     .filter(Boolean)
     .join(", ");
 
@@ -289,6 +295,9 @@ const normalizeVillaData = (
     code: data?.code ?? data?.accommodationCode ?? fallbackCode,
     name: data?.name ?? data?.title ?? fallback.name,
     location: (locationFromApi || data?.location || addressString) ?? fallback.location,
+    place: place || fallback.place,
+    area: area || fallback.area,
+    country: country || fallback.country,
     coordinates: coords ?? fallback.coordinates,
     lat: latLon?.lat ?? fallback.lat,
     lon: latLon?.lon ?? fallback.lon,
@@ -586,7 +595,9 @@ export function VillaDetails({ villaId, onNavigate }: VillaDetailsProps) {
                       <div className="flex items-center gap-3 text-gray-600">
                         <div className="flex items-center gap-1">
                           <MapPin className="w-4 h-4" />
-                          <span>{villa.location}</span>
+                          <span className="text-xs text-gray-500">
+                            {[villa.place, villa.area, villa.country].filter(Boolean).join(', ')}
+                          </span>
                         </div>
                       </div>
                     </div>
