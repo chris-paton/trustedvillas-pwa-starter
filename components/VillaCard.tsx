@@ -9,6 +9,9 @@ interface Villa {
   id: string;
   name: string;
   location: string;
+  place: string;
+  area: string;
+  country: string;
   image: string;
   sleeps: number;
   bedrooms: number;

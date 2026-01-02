@@ -35,10 +35,17 @@ export default function App({
   const [selectedVilla, setSelectedVilla] = useState<string | null>(initialVillaId);
   const [darkMode, setDarkMode] = useState(false);
   const [wishlistCount] = useState(3); // Mock wishlist count
-  const [searchParams, setSearchParams] = useState({
-    location: initialSearchParams?.location ?? "",
-    country: initialSearchParams?.country ?? "",
-    area: initialSearchParams?.area ?? "",
+  const [searchParams, setSearchParams] = useState<{
+    location?: string;
+    country?: string;
+    area?: string;
+    guests: number;
+    checkIn: string;
+    checkOut: string;
+  }>({
+    location: initialSearchParams?.location,
+    country: initialSearchParams?.country,
+    area: initialSearchParams?.area,
     guests: initialSearchParams?.guests ?? 2,
     checkIn: initialSearchParams?.checkIn ?? "",
     checkOut: initialSearchParams?.checkOut ?? "",
