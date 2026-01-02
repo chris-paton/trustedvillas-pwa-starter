@@ -5,7 +5,9 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 interface DestinationsPageProps {
   onNavigate?: (page: "search" | "home" | "destinations" | "villa" | "bookings", villaId?: string) => void;
   onSearch: (params: {
-    location: string;
+    location?: string;
+    country?: string;
+    area?: string;
     guests: number;
     checkIn: string;
     checkOut: string;
@@ -110,7 +112,7 @@ const destinations = [
 export function DestinationsPage({ onSearch }: DestinationsPageProps) {
   const handleRegionClick = (regionName: string) => {
     onSearch({
-      location: regionName,
+      area: regionName,  // Regions are areas, not generic locations
       guests: 2,
       checkIn: "",
       checkOut: "",

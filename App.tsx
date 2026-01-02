@@ -17,6 +17,8 @@ type AppProps = {
   initialVillaId?: string | null;
   initialSearchParams?: {
     location?: string;
+    country?: string;
+    area?: string;
     guests?: number;
     checkIn?: string;
     checkOut?: string;
@@ -35,6 +37,8 @@ export default function App({
   const [wishlistCount] = useState(3); // Mock wishlist count
   const [searchParams, setSearchParams] = useState({
     location: initialSearchParams?.location ?? "",
+    country: initialSearchParams?.country ?? "",
+    area: initialSearchParams?.area ?? "",
     guests: initialSearchParams?.guests ?? 2,
     checkIn: initialSearchParams?.checkIn ?? "",
     checkOut: initialSearchParams?.checkOut ?? "",
@@ -42,6 +46,9 @@ export default function App({
 
   const buildSearchUrl = (params: typeof searchParams) => {
     const query = new URLSearchParams();
+    // Prioritize specific location types
+    if (params.country) query.set("country", params.country);
+    if (params.area) query.set("area", params.area);
     if (params.location) query.set("location", params.location);
     if (params.guests) query.set("guests", String(params.guests));
     if (params.checkIn) query.set("checkIn", params.checkIn);

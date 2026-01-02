@@ -8,7 +8,14 @@ import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 
 interface HomePageProps {
-  onSearch: (params: { location: string; guests: number; checkIn: string; checkOut: string }) => void;
+  onSearch: (params: {
+    location?: string;
+    country?: string;
+    area?: string;
+    guests: number;
+    checkIn: string;
+    checkOut: string;
+  }) => void;
   onNavigate: (page: "search" | "destinations" | "villa" | "home" | "bookings", villaId?: string) => void;
 }
 

@@ -3,11 +3,13 @@ import { Search, MapPin, Users, Calendar as CalendarIcon, Loader2 } from "lucide
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
-import { useLocationSuggestions } from "@/hooks/useLocationSuggestions";
+import { useLocationSuggestions, LocationSuggestion } from "@/hooks/useLocationSuggestions";
 
 interface SearchBarProps {
   onSearch: (params: {
-    location: string;
+    location?: string;
+    country?: string;
+    area?: string;
     guests: number;
     checkIn: string;
     checkOut: string;
@@ -22,6 +24,7 @@ interface SearchBarProps {
 
 export function SearchBar({ onSearch, defaultValues }: SearchBarProps) {
   const [location, setLocation] = useState(defaultValues?.location || "");
+  const [selectedSuggestion, setSelectedSuggestion] = useState<LocationSuggestion | null>(null);
   const [guests, setGuests] = useState(defaultValues?.guests || 2);
   const [checkIn, setCheckIn] = useState<Date | undefined>();
   const [checkOut, setCheckOut] = useState<Date | undefined>();
@@ -35,12 +38,34 @@ export function SearchBar({ onSearch, defaultValues }: SearchBarProps) {
   const locationSuggestions = searchLocations(location, 8);
 
   const handleSearch = () => {
-    onSearch({
-      location,
+    const params: {
+      location?: string;
+      country?: string;
+      area?: string;
+      guests: number;
+      checkIn: string;
+      checkOut: string;
+    } = {
       guests,
       checkIn: checkIn?.toISOString() || "",
       checkOut: checkOut?.toISOString() || "",
-    });
+    };
+
+    // Set the appropriate parameter based on the selected location type
+    if (selectedSuggestion) {
+      if (selectedSuggestion.type === 'country') {
+        params.country = selectedSuggestion.displayName;
+      } else if (selectedSuggestion.type === 'area') {
+        params.area = selectedSuggestion.displayName;
+      } else if (selectedSuggestion.type === 'location') {
+        params.location = selectedSuggestion.displayName;
+      }
+    } else if (location) {
+      // If user typed something but didn't select a suggestion, use it as generic location
+      params.location = location;
+    }
+
+    onSearch(params);
   };
 
   return (
@@ -56,6 +81,7 @@ export function SearchBar({ onSearch, defaultValues }: SearchBarProps) {
               value={location}
               onChange={(e) => {
                 setLocation(e.target.value);
+                setSelectedSuggestion(null); // Clear selection when user types
                 setShowLocationSuggestions(true);
               }}
               onFocus={() => setShowLocationSuggestions(true)}
@@ -77,6 +103,7 @@ export function SearchBar({ onSearch, defaultValues }: SearchBarProps) {
                   key={suggestion.id}
                   onClick={() => {
                     setLocation(suggestion.fullName);
+                    setSelectedSuggestion(suggestion);
                     setShowLocationSuggestions(false);
                   }}
                   className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100 last:border-b-0"
