@@ -6,6 +6,8 @@ export interface LocationSuggestion {
   displayName: string;
   type: 'country' | 'area' | 'location';
   fullName: string;
+  countryId?: number;
+  areaId?: number;
 }
 
 /**
@@ -17,7 +19,7 @@ export function useLocationSuggestions() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch countries and popular areas on mount
+  // Fetch countries and all areas on mount
   useEffect(() => {
     async function fetchLocations() {
       try {
@@ -26,27 +28,36 @@ export function useLocationSuggestions() {
 
         // Fetch all countries
         const countriesResponse = await fetch('/api/locations/countries');
-        if (countriesResponse.ok) {
-          const countriesData: Country[] = await countriesResponse.json();
-          setCountries(countriesData);
+        if (!countriesResponse.ok) {
+          throw new Error('Failed to fetch countries');
         }
 
-        // Fetch areas grouped by country (we'll get popular ones)
-        const areasResponse = await fetch('/api/locations/by-area');
-        if (areasResponse.ok) {
-          const areasData = await areasResponse.json();
-          // Extract areas from the grouped response
-          const allAreas: Area[] = [];
-          if (typeof areasData === 'object') {
-            Object.values(areasData).forEach((item: any) => {
-              if (item.area) {
-                allAreas.push(item.area);
+        const countriesData: Country[] = await countriesResponse.json();
+        setCountries(countriesData);
+
+        // Fetch areas for all countries
+        const allAreas: Area[] = [];
+
+        // Fetch areas from each country
+        for (const country of countriesData) {
+          if (!country || !country.id) continue;
+
+          try {
+            const areasResponse = await fetch(`/api/locations/areas/${country.id}`);
+            if (areasResponse.ok) {
+              const countryAreas = await areasResponse.json();
+              if (Array.isArray(countryAreas)) {
+                allAreas.push(...countryAreas.filter((area): area is Area => !!area));
               }
-            });
+            }
+          } catch (err) {
+            console.error(`Failed to fetch areas for country ${country.id}:`, err);
+            // Continue with other countries
           }
-          setAreas(allAreas);
         }
 
+        console.log(`Loaded ${allAreas.length} areas from ${countriesData.length} countries`);
+        setAreas(allAreas);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching location suggestions:', err);
@@ -111,7 +122,7 @@ export function useLocationSuggestions() {
   }
 
   /**
-   * Search for locations matching a query string
+   * Search for locations matching a query string (client-side search)
    */
   function searchLocations(query: string, limit = 10): LocationSuggestion[] {
     // Return empty array if data is still loading
@@ -142,6 +153,7 @@ export function useLocationSuggestions() {
           displayName: country.displayName || country.name,
           type: 'country',
           fullName: country.displayName || country.name,
+          countryId: country.id,
         });
       }
     });
@@ -161,6 +173,8 @@ export function useLocationSuggestions() {
           displayName: area.displayName || area.name,
           type: 'area',
           fullName: countryName ? `${area.displayName || area.name}, ${countryName}` : (area.displayName || area.name),
+          countryId: area.countryId,
+          areaId: area.id,
         });
       }
     });
@@ -185,6 +199,85 @@ export function useLocationSuggestions() {
       .slice(0, limit);
   }
 
+  /**
+   * Search for locations using the API (includes countries, areas, and specific locations)
+   */
+  async function searchLocationsFromAPI(query: string): Promise<LocationSuggestion[]> {
+    if (!query || query.length < 2) {
+      return getPopularSuggestions();
+    }
+
+    try {
+      const response = await fetch(`/api/locations?search=${encodeURIComponent(query)}`);
+      if (!response.ok) {
+        console.error('Failed to search locations from API');
+        // Fallback to client-side search
+        return searchLocations(query);
+      }
+
+      const data = await response.json();
+      const suggestions: LocationSuggestion[] = [];
+
+      // Handle different response formats
+      if (Array.isArray(data)) {
+        data.forEach((item: any) => {
+          if (!item) return;
+
+          // Determine type based on the structure
+          let type: 'country' | 'area' | 'location' = 'location';
+          let displayName = '';
+          let fullName = '';
+          let id = '';
+          let countryId: number | undefined;
+          let areaId: number | undefined;
+
+          if (item.countries || item.code) {
+            // This is a country
+            type = 'country';
+            displayName = item.displayName || item.name || '';
+            fullName = displayName;
+            id = `country-${item.id}`;
+            countryId = item.id;
+          } else if (item.areas || item.countryId) {
+            // This is an area
+            type = 'area';
+            displayName = item.displayName || item.name || '';
+            const country = countries.find(c => c.id === item.countryId);
+            fullName = country ? `${displayName}, ${country.name}` : displayName;
+            id = `area-${item.id}`;
+            countryId = item.countryId;
+            areaId = item.id;
+          } else {
+            // This is a specific location
+            type = 'location';
+            displayName = item.displayName || item.name || '';
+            fullName = displayName;
+            id = `location-${item.id}`;
+            countryId = item.countryId;
+            areaId = item.areaId;
+          }
+
+          if (displayName) {
+            suggestions.push({
+              id,
+              displayName,
+              type,
+              fullName,
+              countryId,
+              areaId,
+            });
+          }
+        });
+      }
+
+      return suggestions.slice(0, 10);
+    } catch (error) {
+      console.error('Error searching locations from API:', error);
+      // Fallback to client-side search
+      return searchLocations(query);
+    }
+  }
+
   return {
     loading,
     error,
@@ -192,5 +285,6 @@ export function useLocationSuggestions() {
     areas,
     getPopularSuggestions,
     searchLocations,
+    searchLocationsFromAPI,
   };
 }
