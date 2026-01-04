@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Loader } from "lucide-react";
+import { Loader } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Country, Area } from "@/types/locations";
 
@@ -116,16 +116,8 @@ export function DestinationsPage({ onSearch }: DestinationsPageProps) {
         </div>
       </div>
 
-      {/* Interactive Map Placeholder */}
+      {/* Destinations Content */}
       <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
-        <div className="bg-gray-100 rounded-xl h-64 md:h-96 flex items-center justify-center mb-12">
-          <div className="text-center text-gray-600">
-            <MapPin className="w-16 h-16 mx-auto mb-4" />
-            <p className="text-lg">Interactive Map</p>
-            <p className="text-sm">Click on regions to explore villas</p>
-          </div>
-        </div>
-
         {/* Loading State */}
         {loading && (
           <div className="flex items-center justify-center py-12">
