@@ -39,9 +39,16 @@ export function transformAccommodationToVilla(accommodation: Accommodation, inde
     return english?.content || items[0]?.content || "";
   };
 
-  // Get main image
-  const mainImage = accommodation.media?.mediaItem?.find((item) => item.main) || accommodation.media?.mediaItem?.[0];
-  const imageUrl = mainImage?.uri || "https://images.unsplash.com/photo-1758192838598-a1de4da5dcaf";
+  // Get main image - prioritize mainImage field from API, then fall back to media items
+  let imageUrl: string;
+  if (accommodation.mainImage) {
+    // Use the mainImage thumbnail provided by the API
+    imageUrl = accommodation.mainImage;
+  } else {
+    // Fallback to media items
+    const mainImage = accommodation.media?.mediaItem?.find((item) => item.main) || accommodation.media?.mediaItem?.[0];
+    imageUrl = mainImage?.uri || "https://images.unsplash.com/photo-1758192838598-a1de4da5dcaf";
+  }
 
   // Extract features from attributes
   const features: string[] = [];

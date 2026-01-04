@@ -163,6 +163,7 @@ export interface Accommodation {
   themes: Themes;
   descriptions: Descriptions;
   media: Media;
+  mainImage?: string;
   arrivalTimes: ArrivalTimes;
   creationDate: string;
   lastModified: string;
