@@ -29,12 +29,12 @@ function Calendar({
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
         table: "w-full border-collapse",
-        head_row: "flex justify-between",
+        head_row: "grid grid-cols-7",
         head_cell:
-          "text-muted-foreground text-center rounded-md w-9 font-normal text-[0.8rem] flex items-center justify-center",
-        row: "flex w-full mt-2 justify-between",
+          "text-muted-foreground text-center rounded-md font-normal text-[0.8rem] flex items-center justify-center h-9",
+        row: "grid grid-cols-7 mt-2",
         cell: cn(
-          "relative p-0 text-center text-sm w-9 flex items-center justify-center focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-range-end)]:rounded-r-md",
+          "relative p-0 text-center text-sm flex items-center justify-center focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-range-end)]:rounded-r-md",
           props.mode === "range"
             ? "[&:has(>.day-range-end)]:rounded-r-md [&:has(>.day-range-start)]:rounded-l-md first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md"
             : "[&:has([aria-selected])]:rounded-md",
