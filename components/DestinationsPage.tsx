@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { MapPin, TrendingUp, Loader } from "lucide-react";
+import { MapPin, Loader } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Country, Area } from "@/types/locations";
 
