@@ -107,7 +107,7 @@ export function DestinationsPage({ onSearch }: DestinationsPageProps) {
   return (
     <div className="md:mt-20">
       {/* Header */}
-      <div className="bg-gradient-to-r from-orange-500 via-orange-500 to-orange-600 text-white py-12 md:py-20">
+      <div className="bg-orange-500 bg-gradient-to-r from-orange-500 via-orange-500 to-orange-600 text-white py-12 md:py-20">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h1 className="text-3xl md:text-5xl mb-4">Explore the Finest Destinations in Europe</h1>
           <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
