@@ -69,10 +69,10 @@ export function SearchBar({ onSearch, defaultValues }: SearchBarProps) {
   };
 
   return (
-    <div className="w-full max-w-4xl bg-white rounded-xl shadow-2xl p-3 md:p-4">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4">
+    <div className="w-full max-w-5xl bg-white rounded-xl shadow-2xl p-3 md:p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-2">
         {/* Location */}
-        <div className="relative md:col-span-2">
+        <div className="relative lg:col-span-2">
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
@@ -122,54 +122,53 @@ export function SearchBar({ onSearch, defaultValues }: SearchBarProps) {
           )}
         </div>
 
-        {/* Dates */}
-        <div className="flex gap-2">
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="flex-1 flex items-center gap-2 px-3 py-3 md:py-4 border border-gray-200 rounded-lg hover:border-orange-500 transition-colors text-left">
-                <CalendarIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-gray-500">Check-in</p>
-                  <p className="text-sm truncate">
-                    {checkIn ? checkIn.toLocaleDateString() : "Add date"}
-                  </p>
-                </div>
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={checkIn}
-                onSelect={setCheckIn}
-                disabled={(date: Date | undefined) => (date ? date < new Date() : false)}
-              />
-            </PopoverContent>
-          </Popover>
+        {/* Check-in Date */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="w-full flex items-center gap-2 px-3 py-3 md:py-4 border border-gray-200 rounded-lg hover:border-orange-500 transition-colors text-left">
+              <CalendarIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-gray-500">Check-in</p>
+                <p className="text-sm truncate">
+                  {checkIn ? checkIn.toLocaleDateString() : "Add date"}
+                </p>
+              </div>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={checkIn}
+              onSelect={setCheckIn}
+              disabled={(date: Date | undefined) => (date ? date < new Date() : false)}
+            />
+          </PopoverContent>
+        </Popover>
 
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="flex-1 flex items-center gap-2 px-3 py-3 md:py-4 border border-gray-200 rounded-lg hover:border-orange-500 transition-colors text-left">
-                <CalendarIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-gray-500">Check-out</p>
-                  <p className="text-sm truncate">
-                    {checkOut ? checkOut.toLocaleDateString() : "Add date"}
-                  </p>
-                </div>
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={checkOut}
-                onSelect={setCheckOut}
-                disabled={(date: Date | undefined) =>
-                  date ? date < (checkIn || new Date()) : false
-                }
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
+        {/* Check-out Date */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="w-full flex items-center gap-2 px-3 py-3 md:py-4 border border-gray-200 rounded-lg hover:border-orange-500 transition-colors text-left">
+              <CalendarIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-gray-500">Check-out</p>
+                <p className="text-sm truncate">
+                  {checkOut ? checkOut.toLocaleDateString() : "Add date"}
+                </p>
+              </div>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={checkOut}
+              onSelect={setCheckOut}
+              disabled={(date: Date | undefined) =>
+                date ? date < (checkIn || new Date()) : false
+              }
+            />
+          </PopoverContent>
+        </Popover>
 
         {/* Guests */}
         <div className="relative">
