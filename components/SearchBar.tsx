@@ -135,7 +135,7 @@ export function SearchBar({ onSearch, defaultValues }: SearchBarProps) {
               </div>
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
+          <PopoverContent className="w-auto p-0 bg-white" align="start">
             <Calendar
               mode="single"
               selected={checkIn}
@@ -158,7 +158,7 @@ export function SearchBar({ onSearch, defaultValues }: SearchBarProps) {
               </div>
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
+          <PopoverContent className="w-auto p-0 bg-white" align="start">
             <Calendar
               mode="single"
               selected={checkOut}
@@ -182,7 +182,7 @@ export function SearchBar({ onSearch, defaultValues }: SearchBarProps) {
                 </div>
               </button>
             </PopoverTrigger>
-            <PopoverContent className="w-64" align="start">
+            <PopoverContent className="w-64 bg-white" align="start">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span>Guests</span>
