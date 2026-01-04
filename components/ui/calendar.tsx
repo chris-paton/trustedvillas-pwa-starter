@@ -29,10 +29,10 @@ function Calendar({
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
         table: "w-full border-collapse",
-        head_row: "grid grid-cols-7",
+        head_row: "grid grid-cols-7 w-full",
         head_cell:
           "text-muted-foreground text-center rounded-md font-normal text-[0.8rem] flex items-center justify-center h-9",
-        row: "grid grid-cols-7 mt-2",
+        row: "grid grid-cols-7 w-full mt-2",
         cell: cn(
           "relative p-0 text-center text-sm flex items-center justify-center focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-range-end)]:rounded-r-md",
           props.mode === "range"
