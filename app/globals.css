@@ -227,8 +227,7 @@ table[role="grid"] tbody tr {
 }
 
 /* Center chevrons vertically in calendar */
-table[role="grid"] + div nav,
-div[class*="caption"] nav {
-  top: 50%;
-  transform: translateY(-50%);
+[class*="rdp"] nav[class*="nav"] {
+  top: 50% !important;
+  transform: translateY(-50%) !important;
 }
