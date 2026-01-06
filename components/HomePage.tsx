@@ -57,10 +57,16 @@ export function HomePage({ onSearch, onNavigate }: HomePageProps) {
 
         const accommodations: Accommodation[] = await response.json();
 
+        console.log('Fetched accommodations:', accommodations);
+        console.log('First accommodation mainImage:', accommodations[0]?.mainImage);
+
         // Transform accommodations to Villa format and take first 4
         const villas = accommodations
           .slice(0, 4)
           .map((acc, index) => transformAccommodationToVilla(acc, index));
+
+        console.log('Transformed villas:', villas);
+        console.log('First villa image:', villas[0]?.image);
 
         setTopDeals(villas);
       } catch (err) {
@@ -229,6 +235,7 @@ export function HomePage({ onSearch, onNavigate }: HomePageProps) {
 
         <div className="text-center mt-8">
           <button
+            type="button"
             onClick={() => onNavigate("destinations")}
             className="text-orange-500 hover:text-orange-600"
           >

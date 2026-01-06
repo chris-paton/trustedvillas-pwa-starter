@@ -44,10 +44,13 @@ export function transformAccommodationToVilla(accommodation: Accommodation, inde
   if (accommodation.mainImage) {
     // Use the mainImage thumbnail provided by the API
     imageUrl = accommodation.mainImage;
+    console.log(`Using mainImage for ${accommodation.name}:`, imageUrl);
   } else {
     // Fallback to media items
     const mainImage = accommodation.media?.mediaItem?.find((item) => item.main) || accommodation.media?.mediaItem?.[0];
     imageUrl = mainImage?.uri || "https://images.unsplash.com/photo-1758192838598-a1de4da5dcaf";
+    console.log(`Using fallback image for ${accommodation.name}:`, imageUrl);
+    console.log('Media items:', accommodation.media?.mediaItem);
   }
 
   // Extract features from attributes
