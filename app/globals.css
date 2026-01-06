@@ -227,15 +227,19 @@ table[role="grid"] tbody tr {
 }
 
 /* Center chevrons vertically in entire calendar popup */
-[class*="rdp-month"] {
+.p-3[class*="rdp"] {
   position: relative;
 }
 
-[class*="rdp"] nav[class*="nav"] {
+[class*="rdp"] [class*="caption"] {
+  position: static !important;
+}
+
+[class*="rdp"] nav {
   position: absolute !important;
   top: 50% !important;
   left: 0 !important;
   right: 0 !important;
   transform: translateY(-50%) !important;
-  margin: 0 !important;
+  z-index: 10 !important;
 }
