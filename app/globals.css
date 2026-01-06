@@ -199,7 +199,7 @@ table[role="grid"] td {
   width: calc(100% / 7);  /* Divide equally among 7 columns */
   display: table-cell;    /* Force table-cell display */
   text-align: center;
-  padding: 8px 0;
+  padding: 12px 4px;      /* Increased vertical padding for better spacing */
 }
 
 /* Remove any width constraints on th elements */
@@ -207,10 +207,16 @@ table[role="grid"] thead th {
   width: calc(100% / 7);
   min-width: unset;  /* Reset any min-width */
   max-width: unset;  /* Reset any max-width */
+  padding: 8px 4px;  /* Header cells get slightly less padding */
 }
 
 /* Fix the TD cells - they should be table-cells, not inline-flex */
 table[role="grid"] tbody td {
   display: table-cell;
   width: calc(100% / 7);
+}
+
+/* Add spacing between rows */
+table[role="grid"] tbody tr {
+  margin-top: 4px;
 }
