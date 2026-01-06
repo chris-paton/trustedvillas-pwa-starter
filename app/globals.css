@@ -220,3 +220,8 @@ table[role="grid"] tbody td {
 table[role="grid"] tbody tr {
   margin-top: 4px;
 }
+
+/* Override calendar popup padding */
+.p-3[class*="rdp"] {
+  padding: 1.5rem !important;
+}
