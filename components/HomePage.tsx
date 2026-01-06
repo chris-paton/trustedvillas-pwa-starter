@@ -6,6 +6,9 @@ import { DestinationTile } from "@/components/DestinationTile";
 import { Star, Award, Shield } from "lucide-react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { ExitIntentPopup } from "@/components/ExitIntentPopup";
+import { useState, useEffect } from "react";
+import { Accommodation } from "@/types/accommodation";
+import { transformAccommodationToVilla, Villa } from "@/utils/accommodationTransformer";
 
 interface HomePageProps {
   onSearch: (params: {
@@ -18,65 +21,6 @@ interface HomePageProps {
   }) => void;
   onNavigate: (page: "search" | "destinations" | "villa" | "home" | "bookings", villaId?: string) => void;
 }
-
-const topDeals = [
-  {
-    id: "1",
-    name: "Villa Sunset Paradise",
-    location: "Costa del Sol, Spain",
-    image: "https://images.unsplash.com/photo-1758192838598-a1de4da5dcaf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjB2aWxsYSUyMHBvb2wlMjBzdW5zZXR8ZW58MXx8fHwxNzYzOTMyOTUyfDA&ixlib=rb-4.1.0&q=80&w=1080",
-    sleeps: 8,
-    bedrooms: 4,
-    price: 285,
-    originalPrice: 425,
-    rating: 4.9,
-    reviews: 127,
-    leftInStock: 2,
-    discount: 33,
-  },
-  {
-    id: "2",
-    name: "Tuscan Hillside Retreat",
-    location: "Tuscany, Italy",
-    image: "https://images.unsplash.com/photo-1699394631060-a643e09d4780?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpdGFsaWFuJTIwdmlsbGElMjB0dXNjYW55fGVufDF8fHx8MTc2MzkzMjk1M3ww&ixlib=rb-4.1.0&q=80&w=1080",
-    sleeps: 6,
-    bedrooms: 3,
-    price: 320,
-    originalPrice: 460,
-    rating: 5.0,
-    reviews: 89,
-    leftInStock: 1,
-    discount: 30,
-  },
-  {
-    id: "3",
-    name: "Provence Lavender Estate",
-    location: "Provence, France",
-    image: "https://images.unsplash.com/photo-1763505901553-7f9700215b35?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmcmVuY2glMjB2aWxsYSUyMHByb3ZlbmNlfGVufDF8fHx8MTc2MzkzMjk1M3ww&ixlib=rb-4.1.0&q=80&w=1080",
-    sleeps: 10,
-    bedrooms: 5,
-    price: 445,
-    originalPrice: 650,
-    rating: 4.8,
-    reviews: 156,
-    leftInStock: 3,
-    discount: 32,
-  },
-  {
-    id: "4",
-    name: "Ocean View Villa Deluxe",
-    location: "Algarve, Portugal",
-    image: "https://images.unsplash.com/photo-1729605412044-81f6acce4370?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBwb29sJTIwb2NlYW4lMjB2aWV3fGVufDF8fHx8MTc2MzkzMjk1NHww&ixlib=rb-4.1.0&q=80&w=1080",
-    sleeps: 12,
-    bedrooms: 6,
-    price: 520,
-    originalPrice: 775,
-    rating: 4.9,
-    reviews: 203,
-    leftInStock: 2,
-    discount: 33,
-  },
-];
 
 const destinations = [
   {
@@ -97,6 +41,39 @@ const destinations = [
 ];
 
 export function HomePage({ onSearch, onNavigate }: HomePageProps) {
+  const [topDeals, setTopDeals] = useState<Villa[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchTopDeals() {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/accommodation-list/random');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch top deals');
+        }
+
+        const accommodations: Accommodation[] = await response.json();
+
+        // Transform accommodations to Villa format and take first 4
+        const villas = accommodations
+          .slice(0, 4)
+          .map((acc, index) => transformAccommodationToVilla(acc, index));
+
+        setTopDeals(villas);
+      } catch (err) {
+        setError('Failed to load top deals. Please try again later.');
+        console.error('Error fetching top deals:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchTopDeals();
+  }, []);
+
   return (
     <div className="md:mt-20">
       {/* Hero Section */}
@@ -174,18 +151,45 @@ export function HomePage({ onSearch, onNavigate }: HomePageProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {topDeals.map((deal, index) => (
-            <motion.div
-              key={deal.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="bg-gray-200 h-64 rounded-lg mb-4"></div>
+                <div className="bg-gray-200 h-4 w-3/4 rounded mb-2"></div>
+                <div className="bg-gray-200 h-4 w-1/2 rounded"></div>
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-red-500 mb-4">{error}</p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="text-orange-500 hover:text-orange-600"
             >
-              <DealCard deal={deal} onViewDetails={() => onNavigate("villa", deal.id)} />
-            </motion.div>
-          ))}
-        </div>
+              Try Again
+            </button>
+          </div>
+        ) : topDeals.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No deals available at the moment.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {topDeals.map((deal, index) => (
+              <motion.div
+                key={deal.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <DealCard deal={deal} onViewDetails={() => onNavigate("villa", deal.id)} />
+              </motion.div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Trust Badges Section */}
@@ -303,7 +307,7 @@ export function HomePage({ onSearch, onNavigate }: HomePageProps) {
               placeholder="Enter your email"
               className="flex-1 px-4 py-3 rounded-lg text-gray-900"
             />
-            <button className="bg-white text-orange-600 px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors">
+            <button type="button" className="bg-white text-orange-600 px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors">
               Subscribe
             </button>
           </div>

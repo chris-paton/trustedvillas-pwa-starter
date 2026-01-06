@@ -12,11 +12,11 @@ interface Deal {
   sleeps: number;
   bedrooms: number;
   price: number;
-  originalPrice: number;
+  originalPrice?: number;
   rating: number;
   reviews: number;
-  leftInStock: number;
-  discount: number;
+  leftInStock?: number;
+  discount?: number;
 }
 
 interface DealCardProps {
@@ -39,14 +39,16 @@ export function DealCard({ deal, onViewDetails }: DealCardProps) {
         />
         
         {/* Discount Badge */}
-        <div className="absolute top-3 left-3">
-          <Badge className="bg-red-500 text-white border-0">
-            {deal.discount}% OFF
-          </Badge>
-        </div>
+        {deal.discount && (
+          <div className="absolute top-3 left-3">
+            <Badge className="bg-red-500 text-white border-0">
+              {deal.discount}% OFF
+            </Badge>
+          </div>
+        )}
 
         {/* Urgency Indicator */}
-        {deal.leftInStock <= 3 && (
+        {deal.leftInStock && deal.leftInStock <= 3 && (
           <div className="absolute top-3 right-3">
             <Badge className="bg-orange-500 text-white border-0 flex items-center gap-1">
               <Clock className="w-3 h-3" />
@@ -87,7 +89,9 @@ export function DealCard({ deal, onViewDetails }: DealCardProps) {
           <div>
             <div className="flex items-baseline gap-2">
               <span className="text-2xl text-orange-500">£{deal.price}</span>
-              <span className="text-sm text-gray-500 line-through">£{deal.originalPrice}</span>
+              {deal.originalPrice && (
+                <span className="text-sm text-gray-500 line-through">£{deal.originalPrice}</span>
+              )}
             </div>
             <span className="text-xs text-gray-500">per night</span>
           </div>
