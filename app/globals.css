@@ -191,3 +191,26 @@
 html {
   font-size: var(--font-size);
 }
+
+/* Calendar table alignment fixes */
+/* Ensure all table cells have consistent sizing */
+table[role="grid"] th,
+table[role="grid"] td {
+  width: calc(100% / 7);  /* Divide equally among 7 columns */
+  display: table-cell;    /* Force table-cell display */
+  text-align: center;
+  padding: 8px 0;
+}
+
+/* Remove any width constraints on th elements */
+table[role="grid"] thead th {
+  width: calc(100% / 7);
+  min-width: unset;  /* Reset any min-width */
+  max-width: unset;  /* Reset any max-width */
+}
+
+/* Fix the TD cells - they should be table-cells, not inline-flex */
+table[role="grid"] tbody td {
+  display: table-cell;
+  width: calc(100% / 7);
+}
