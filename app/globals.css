@@ -242,4 +242,6 @@ table[role="grid"] tbody tr {
   right: 0 !important;
   transform: translateY(-50%) !important;
   z-index: 10 !important;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
 }
