@@ -226,8 +226,16 @@ table[role="grid"] tbody tr {
   padding: 1.5rem !important;
 }
 
-/* Center chevrons vertically in calendar */
+/* Center chevrons vertically in entire calendar popup */
+[class*="rdp-month"] {
+  position: relative;
+}
+
 [class*="rdp"] nav[class*="nav"] {
+  position: absolute !important;
   top: 50% !important;
+  left: 0 !important;
+  right: 0 !important;
   transform: translateY(-50%) !important;
+  margin: 0 !important;
 }
