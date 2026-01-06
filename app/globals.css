@@ -222,9 +222,9 @@ table[role="grid"] tbody tr {
 }
 
 /* Override calendar popup padding */
-.p-3[class*="rdp"] {
+/* .p-3[class*="rdp"] {
   padding: 1.5rem !important;
-}
+} */
 
 /* Center chevrons vertically in entire calendar popup */
 .p-3[class*="rdp"] {
