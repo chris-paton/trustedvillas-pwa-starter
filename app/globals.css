@@ -194,6 +194,12 @@ html {
 
 /* Calendar table alignment fixes */
 /* Ensure all table cells have consistent sizing */
+table[role="grid"] {
+  margin-left: 3rem;
+  margin-right: 3rem;
+  width: calc(100% - 6rem) !important;
+}
+
 table[role="grid"] th,
 table[role="grid"] td {
   width: calc(100% / 7);  /* Divide equally among 7 columns */
@@ -244,4 +250,9 @@ table[role="grid"] tbody tr {
   z-index: 10 !important;
   padding-left: 1.25rem !important;
   padding-right: 1.25rem !important;
+  pointer-events: none !important;
+}
+
+[class*="rdp"] nav button {
+  pointer-events: auto !important;
 }

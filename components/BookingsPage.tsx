@@ -116,22 +116,14 @@ export function BookingsPage({ onNavigate }: BookingsPageProps) {
                           <p className="text-sm text-gray-600 mb-1">Check-in</p>
                           <p className="flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
-                            {new Date(booking.checkIn).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })}
+                            {new Date(booking.checkIn).toLocaleDateString("en-GB")}
                           </p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600 mb-1">Check-out</p>
                           <p className="flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
-                            {new Date(booking.checkOut).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })}
+                            {new Date(booking.checkOut).toLocaleDateString("en-GB")}
                           </p>
                         </div>
                         <div>
@@ -221,22 +213,14 @@ export function BookingsPage({ onNavigate }: BookingsPageProps) {
                           <p className="text-sm text-gray-600 mb-1">Check-in</p>
                           <p className="flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
-                            {new Date(booking.checkIn).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })}
+                            {new Date(booking.checkIn).toLocaleDateString("en-GB")}
                           </p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600 mb-1">Check-out</p>
                           <p className="flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
-                            {new Date(booking.checkOut).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })}
+                            {new Date(booking.checkOut).toLocaleDateString("en-GB")}
                           </p>
                         </div>
                         <div>

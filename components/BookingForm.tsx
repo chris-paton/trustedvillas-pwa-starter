@@ -55,11 +55,11 @@ export function BookingForm({ villa, onClose }: BookingFormProps) {
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-gray-600">Check-in:</span>
-              <span>{checkIn?.toLocaleDateString()}</span>
+              <span>{checkIn?.toLocaleDateString("en-GB")}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Check-out:</span>
-              <span>{checkOut?.toLocaleDateString()}</span>
+              <span>{checkOut?.toLocaleDateString("en-GB")}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Guests:</span>
@@ -135,7 +135,7 @@ export function BookingForm({ villa, onClose }: BookingFormProps) {
                     <div>
                       <p className="text-xs text-gray-500">Check-in</p>
                       <p className="text-sm">
-                        {checkIn ? checkIn.toLocaleDateString() : "Add date"}
+                        {checkIn ? checkIn.toLocaleDateString("en-GB") : "Add date"}
                       </p>
                     </div>
                   </button>
@@ -159,7 +159,7 @@ export function BookingForm({ villa, onClose }: BookingFormProps) {
                     <div>
                       <p className="text-xs text-gray-500">Check-out</p>
                       <p className="text-sm">
-                        {checkOut ? checkOut.toLocaleDateString() : "Add date"}
+                        {checkOut ? checkOut.toLocaleDateString("en-GB") : "Add date"}
                       </p>
                     </div>
                   </button>

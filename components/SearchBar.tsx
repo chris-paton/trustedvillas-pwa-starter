@@ -130,7 +130,7 @@ export function SearchBar({ onSearch, defaultValues }: SearchBarProps) {
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-gray-500">Check-in</p>
                 <p className="text-sm truncate">
-                  {checkIn ? checkIn.toLocaleDateString() : "Add date"}
+                  {checkIn ? checkIn.toLocaleDateString("en-GB") : "Add date"}
                 </p>
               </div>
             </button>
@@ -153,7 +153,7 @@ export function SearchBar({ onSearch, defaultValues }: SearchBarProps) {
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-gray-500">Check-out</p>
                 <p className="text-sm truncate">
-                  {checkOut ? checkOut.toLocaleDateString() : "Add date"}
+                  {checkOut ? checkOut.toLocaleDateString("en-GB") : "Add date"}
                 </p>
               </div>
             </button>
