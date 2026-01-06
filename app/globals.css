@@ -225,3 +225,10 @@ table[role="grid"] tbody tr {
 .p-3[class*="rdp"] {
   padding: 1.5rem !important;
 }
+
+/* Center chevrons vertically in calendar */
+table[role="grid"] + div nav,
+div[class*="caption"] nav {
+  top: 50%;
+  transform: translateY(-50%);
+}
