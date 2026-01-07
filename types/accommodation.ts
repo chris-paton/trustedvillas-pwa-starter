@@ -172,6 +172,9 @@ export interface Accommodation {
   buyingOfficeCode: string | null;
   domesticCurrency: string;
   attributeXmllist: string | null;
+  qualityRating?: string;
+  sleeps?: number;
+  bedrooms?: number;
 }
 
 export type AccommodationListResponse = Accommodation[];

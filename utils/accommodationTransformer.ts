@@ -92,8 +92,8 @@ export function transformAccommodationToVilla(accommodation: Accommodation, inde
   // Use location field from API if available, otherwise build from parts
   const location = accommodation.location || `${place}${place && country ? ", " : ""}${country}`;
 
-  // Parse rating
-  const rating = parseFloat(accommodation.rating?.overAllRating || "0");
+  // Parse quality rating - use qualityRating field first, then fallback to evaluation.stars
+  const rating = parseFloat(accommodation.qualityRating || accommodation.evaluation?.stars || "0");
   const reviews = accommodation.rating?.nbrOfReviews || 0;
 
   // Calculate price (mock for now - would come from availability API)

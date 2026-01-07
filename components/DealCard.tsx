@@ -57,14 +57,15 @@ export function DealCard({ deal, onViewDetails }: DealCardProps) {
           </div>
         )}
 
-        {/* Rating */}
-        <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1">
-          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-          <span className="text-sm">
-            {deal.rating}
-          </span>
-          <span className="text-xs text-gray-500">({deal.reviews})</span>
-        </div>
+        {/* Rating - Only show if rating exists and is greater than 0 */}
+        {deal.rating > 0 && (
+          <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1">
+            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+            <span className="text-sm font-medium">
+              {deal.rating}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="p-4">
